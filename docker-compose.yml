@@ -1,0 +1,23 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0.21-openssl
+    container_name: mosquitto
+    restart: unless-stopped
+    user: "mosquitto:mosquitto"
+    volumes:
+      - ./certs:/mosquitto/certs:rw
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:rw
+      - ./config/mosquitto.passwd:/mosquitto/config/mosquitto.passwd:rw
+      - ./log:/mosquitto/log:rw
+    ports:
+      - "8883:8883"
+    networks:
+      - mqtt_network
+    environment:
+      - TZ=America/Sao_Paulo
+
+
+networks:
+  mqtt_network:
+    driver: bridge
+

@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "mosquitto-auth"
+version = "0.1.0"
+description = "Generate password for mosquitto"
+authors = ["Anderson <andersonlimacrv@gmail.com>"]
+packages = [
+    { include = "mosquitto_auth" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+passlib = "^1.7.4"
+python-dotenv = "^1.1.0"
+paho-mqtt = "^2.1.0"
+
+[tool.poetry.scripts]
+generate-pass = "mosquitto_auth.generate_users_password:main"
+generate-cert = "mosquitto_auth.generate_users_certificate:main"
+verify-cert = "mosquitto_auth.verify_certificate:main"
+test-passwords = "tests.mqtt_client:test_password_generation"
+test-mqtt = "tests.mqtt_client:test_mqtt_connection"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

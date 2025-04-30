@@ -1,0 +1,17 @@
+.env
+/certs/
+/config/mosquitto.passwd
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+/log/
+
+# Poetry
+poetry.lock 
+
+# Editor/IDE
+.vscode/
+.idea/
