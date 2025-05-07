@@ -4,8 +4,8 @@ import subprocess
 import platform
 from dotenv import load_dotenv
 
-# Path configuration for Windows
 MOSQUITTO_PASSWD_WINDOWS = 'C:\\Program Files\\mosquitto\\mosquitto_passwd.exe'
+MOSQUITTO_PASSWD_LINUX = '/usr/bin/mosquitto_passwd'  # Caminho típico no Ubuntu
 
 def get_env_users():
     """Retrieve all users and passwords from the .env file with the pattern USER_X / PASS_X"""
@@ -34,22 +34,15 @@ def get_mosquitto_passwd_cmd():
             )
         return MOSQUITTO_PASSWD_WINDOWS
     else:
-        # For Linux and other OS, use the command from PATH
-        try:
-            subprocess.run(["mosquitto_passwd", "-h"], 
-                         check=True, 
-                         stdout=subprocess.DEVNULL, 
-                         stderr=subprocess.DEVNULL)
-            return "mosquitto_passwd"
-        except (subprocess.CalledProcessError, FileNotFoundError):
+        if not os.path.exists(MOSQUITTO_PASSWD_LINUX):
             raise FileNotFoundError(
-                "mosquitto_passwd command not found in PATH.\n"
+                f"mosquitto_passwd not found at expected path: {MOSQUITTO_PASSWD_LINUX}\n"
                 "Install Mosquitto using: sudo apt-get install mosquitto"
             )
+        return MOSQUITTO_PASSWD_LINUX
 
 def generate_password_file(users, passwd_file_path):
     """Generate the password file using mosquitto_passwd"""
-    # Remove previous file if it exists
     if os.path.exists(passwd_file_path):
         os.remove(passwd_file_path)
 
@@ -59,7 +52,7 @@ def generate_password_file(users, passwd_file_path):
     for username, password in users.items():
         cmd = [mosquitto_cmd, "-b"]
         if first_user:
-            cmd.append("-c")  # Create new file
+            cmd.append("-c") 
             first_user = False
         
         cmd.extend([passwd_file_path, username, password])
@@ -76,7 +69,6 @@ def main():
             print("⚠️ No users found in .env")
             return
 
-        # Create config directory if it doesn't exist
         os.makedirs('config', exist_ok=True)
 
         generate_password_file(users, passwd_file)
