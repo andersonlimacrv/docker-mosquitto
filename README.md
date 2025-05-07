@@ -7,6 +7,7 @@
 ### 🖥️ System Requirements
 - **Docker** + **Docker Compose** (v2.0+)
 - **Python 3.8+** (with pip)
+- **Poetry 1.2+** (for dependency management)
 - **OpenSSL** (for certificate generation)
 - **Mosquitto Tools** (for password hashing)
   - Linux: `sudo apt-get install mosquitto-clients`

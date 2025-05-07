@@ -4,9 +4,9 @@ from pathlib import Path
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser(description="Gerar certificado do broker MQTT.")
-    parser.add_argument("cn", type=str, help="Common Name (CN) obrigatório — IP ou domínio do broker.")
-    parser.add_argument("--days", type=int, default=365, help="Validade do certificado em dias (padrão: 365)")
+    parser = argparse.ArgumentParser(description="Generate MQTT broker certificate.")
+    parser.add_argument("cn", type=str, help="Required Common Name (CN) — broker IP or domain.")
+    parser.add_argument("--days", type=int, default=365, help="Certificate validity in days (default: 365)")
     args = parser.parse_args()
 
     broker_dir = Path("certs/broker")
@@ -19,19 +19,19 @@ def main():
     broker_csr = broker_dir / "broker.csr"
     broker_crt = broker_dir / "broker.crt"
 
-    print("🔐 Gerando chave privada do broker...")
+    print("🔐 Generating broker private key...")
     subprocess.run([
         "openssl", "genrsa", "-out", str(broker_key), "2048"
     ], check=True)
 
-    print(f"📄 Gerando CSR para o broker com CN={args.cn}...")
+    print(f"📄 Generating CSR for broker with CN={args.cn}...")
     subprocess.run([
         "openssl", "req", "-new", "-key", str(broker_key),
         "-out", str(broker_csr),
         "-subj", f"/CN={args.cn}"
     ], check=True)
 
-    print("✅ Assinando certificado com a CA...")
+    print("✅ Signing certificate with CA...")
     subprocess.run([
         "openssl", "x509", "-req", "-in", str(broker_csr),
         "-CA", str(ca_crt), "-CAkey", str(ca_key),
@@ -39,7 +39,7 @@ def main():
         "-days", str(args.days), "-sha256"
     ], check=True)
 
-    print("🏁 Certificado do broker gerado com sucesso em:")
+    print("🏁 Broker certificate successfully generated at:")
     print(f"  - {broker_key}")
     print(f"  - {broker_csr}")
     print(f"  - {broker_crt}")

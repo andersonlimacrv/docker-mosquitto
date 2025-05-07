@@ -10,7 +10,7 @@ def run_cmd(cmd: list[str]):
     try:
         subprocess.run(cmd, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"❌ Erro ao executar: {' '.join(cmd)}\n{e}")
+        print(f"❌ Error executing: {' '.join(cmd)}\n{e}")
         sys.exit(1)
 
 
@@ -19,23 +19,23 @@ def verify_certificate(cn: str):
     crt_path = client_dir / f"{cn}.crt"
 
     if not crt_path.exists():
-        print(f"❌ Certificado não encontrado: {crt_path}")
+        print(f"❌ Certificate not found: {crt_path}")
         sys.exit(1)
 
     if not CA_CERT.exists():
-        print(f"❌ Certificado da CA não encontrado: {CA_CERT}")
+        print(f"❌ CA certificate not found: {CA_CERT}")
         sys.exit(1)
 
-    print("🔍 Verificando validade do certificado:")
+    print("🔍 Checking certificate validity:")
     run_cmd(["openssl", "x509", "-in", str(crt_path), "-noout", "-dates"])
 
-    print("\n🔒 Verificando assinatura com a CA:")
+    print("\n🔒 Verifying CA signature:")
     run_cmd(["openssl", "verify", "-CAfile", str(CA_CERT), str(crt_path)])
 
 
 def main():
     if len(sys.argv) < 2:
-        print("Uso: poetry run verify-cert <CN>")
+        print("Usage: poetry run verify-cert <CN>")
         sys.exit(1)
 
     cn = sys.argv[1]
