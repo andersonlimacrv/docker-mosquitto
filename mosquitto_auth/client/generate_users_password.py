@@ -4,11 +4,11 @@ import subprocess
 import platform
 from dotenv import load_dotenv
 
-# Configuração do caminho para Windows
+# Path configuration for Windows
 MOSQUITTO_PASSWD_WINDOWS = 'C:\\Program Files\\mosquitto\\mosquitto_passwd.exe'
 
 def get_env_users():
-    """Busca todos os usuários e senhas do .env com padrão USER_X / PASS_X"""
+    """Retrieve all users and passwords from the .env file with the pattern USER_X / PASS_X"""
     users = {}
     pattern = re.compile(r'^USER_(\d+)$')
 
@@ -23,18 +23,18 @@ def get_env_users():
     return users
 
 def get_mosquitto_passwd_cmd():
-    """Retorna o comando apropriado de acordo com o sistema operacional"""
+    """Return the appropriate mosquitto_passwd command based on the OS"""
     system = platform.system().lower()
     
     if system == 'windows':
         if not os.path.exists(MOSQUITTO_PASSWD_WINDOWS):
             raise FileNotFoundError(
-                f"Arquivo mosquitto_passwd não encontrado em: {MOSQUITTO_PASSWD_WINDOWS}\n"
-                "Certifique-se de que o Mosquitto está instalado no local padrão."
+                f"mosquitto_passwd file not found at: {MOSQUITTO_PASSWD_WINDOWS}\n"
+                "Make sure Mosquitto is installed in the default location."
             )
         return MOSQUITTO_PASSWD_WINDOWS
     else:
-        # Para Linux e outros sistemas, usa o comando diretamente no PATH
+        # For Linux and other OS, use the command from PATH
         try:
             subprocess.run(["mosquitto_passwd", "-h"], 
                          check=True, 
@@ -43,13 +43,13 @@ def get_mosquitto_passwd_cmd():
             return "mosquitto_passwd"
         except (subprocess.CalledProcessError, FileNotFoundError):
             raise FileNotFoundError(
-                "Comando mosquitto_passwd não encontrado no PATH.\n"
-                "Instale o Mosquitto com: sudo apt-get install mosquitto"
+                "mosquitto_passwd command not found in PATH.\n"
+                "Install Mosquitto using: sudo apt-get install mosquitto"
             )
 
 def generate_password_file(users, passwd_file_path):
-    """Gera o arquivo de senhas usando mosquitto_passwd"""
-    # Apaga o arquivo anterior, se existir
+    """Generate the password file using mosquitto_passwd"""
+    # Remove previous file if it exists
     if os.path.exists(passwd_file_path):
         os.remove(passwd_file_path)
 
@@ -59,7 +59,7 @@ def generate_password_file(users, passwd_file_path):
     for username, password in users.items():
         cmd = [mosquitto_cmd, "-b"]
         if first_user:
-            cmd.append("-c")
+            cmd.append("-c")  # Create new file
             first_user = False
         
         cmd.extend([passwd_file_path, username, password])
@@ -73,22 +73,22 @@ def main():
     try:
         users = get_env_users()
         if not users:
-            print("⚠️ Nenhum usuário encontrado no .env")
+            print("⚠️ No users found in .env")
             return
 
-        # Cria diretório config se não existir
+        # Create config directory if it doesn't exist
         os.makedirs('config', exist_ok=True)
 
         generate_password_file(users, passwd_file)
-        print(f"✓ Arquivo {passwd_file} atualizado com sucesso com {len(users)} usuários!")
-        print(f"✓ Sistema operacional detectado: {platform.system()}")
+        print(f"✓ File {passwd_file} successfully updated with {len(users)} user(s)!")
+        print(f"✓ Detected OS: {platform.system()}")
         
     except FileNotFoundError as e:
-        print(f"❌ Erro: {str(e)}")
+        print(f"❌ Error: {str(e)}")
     except subprocess.CalledProcessError as e:
-        print(f"❌ Erro ao executar mosquitto_passwd: {str(e)}")
+        print(f"❌ Error while running mosquitto_passwd: {str(e)}")
     except Exception as e:
-        print(f"❌ Erro inesperado: {str(e)}")
+        print(f"❌ Unexpected error: {str(e)}")
 
 if __name__ == "__main__":
     main()

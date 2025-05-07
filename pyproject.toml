@@ -14,11 +14,13 @@ python-dotenv = "^1.1.0"
 paho-mqtt = "^2.1.0"
 
 [tool.poetry.scripts]
-generate-pass = "mosquitto_auth.generate_users_password:main"
-generate-cert = "mosquitto_auth.generate_users_certificate:main"
+generate-pass = "mosquitto_auth.client.generate_users_password:main"
+generate-cert = "mosquitto_auth.client.generate_users_certificate:main"
+generate-ca = "mosquitto_auth.ca.generate_ca:main"
+generate-broker-cert = "mosquitto_auth.broker.generate_broker_certificate:main"
 verify-cert = "mosquitto_auth.verify_certificate:main"
+test-mqtt-connection = "tests.mqtt_client:test_mqtt_connection"
 test-passwords = "tests.mqtt_client:test_password_generation"
-test-mqtt = "tests.mqtt_client:test_mqtt_connection"
 
 [build-system]
 requires = ["poetry-core"]
