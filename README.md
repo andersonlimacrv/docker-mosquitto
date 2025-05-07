@@ -188,9 +188,7 @@ docker-compose restart mosquitto
 │   |   └── 🧪 generate_broker_certificate.py
 |   └── 📁 ca
 │       └── 🧪 generate_ca.py
-│
-│
-│
+|
 └── 📁 tests
     └── 🧪 mqtt_client.py
 ```
