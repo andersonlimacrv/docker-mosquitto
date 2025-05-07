@@ -533,6 +533,30 @@ networks:
 ⚙️ **Developer friendly**<br>
 
 
+## 🔗 Additional Documentation
+
+For deeper technical details, refer to these specialized guides:
+
+| Documentation | Content Focus |
+|--------------|---------------|
+| [📜 **CERTIFICATE.md**](./CERTIFICATE.md) | Complete TLS workflow: CA creation, broker/client certs, and OpenSSL commands |
+| [📘 **MOSQUITTO_DOCS.md**](./MOSQUITTO_DOCS.md) | Broker configuration: ACLs, listeners, and security hardening |
+
+---
+
+### Key Features of Each Guide:
+
+**`CERTIFICATE.md` Covers:**
+- Certificate chain validation
+- Script automation details
+- Troubleshooting TLS errors
+
+**`MOSQUITTO_DOCS.md` Includes:**
+- Password encryption methods
+- Port configuration
+- Logging best practices
+
+
 
 ## 📜 LICENSE
 
