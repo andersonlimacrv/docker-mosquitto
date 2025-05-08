@@ -12,6 +12,8 @@ python = "^3.12"
 passlib = "^1.7.4"
 python-dotenv = "^1.1.0"
 paho-mqtt = "^2.1.0"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
 
 [tool.poetry.scripts]
 generate-pass = "mosquitto_auth.client.generate_users_password:main"
@@ -19,7 +21,7 @@ generate-cert = "mosquitto_auth.client.generate_users_certificate:main"
 generate-ca = "mosquitto_auth.ca.generate_ca:main"
 generate-broker-cert = "mosquitto_auth.broker.generate_broker_certificate:main"
 verify-cert = "mosquitto_auth.verify_certificate:main"
-test-mqtt-connection = "tests.mqtt_client:test_mqtt_connection"
+test-mqtt = "tests.mqtt_client:test_mqtt_connection"
 test-passwords = "tests.mqtt_client:test_password_generation"
 
 [build-system]

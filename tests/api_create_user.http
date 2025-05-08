@@ -1,0 +1,13 @@
+@base_url = {{$dotenv API_BASE_URL}}
+@api_key = {{$dotenv API_KEY}}
+
+
+# Example: Create a new user 
+POST {{base_url}}/users/create
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "username": "example_user",
+  "password": "example_password"
+}
