@@ -2,8 +2,8 @@ import sys
 from pathlib import Path
 import subprocess
 
-CA_CERT = Path("certs/ca.crt")
-CLIENT_BASE = Path("certs/client")
+CA_CERT = Path("./certs/ca.crt")
+CLIENT_BASE = Path("./certs/client")
 
 
 def run_cmd(cmd: list[str]):
