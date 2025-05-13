@@ -3,7 +3,7 @@ services:
     image: eclipse-mosquitto:2.0.21-openssl
     container_name: mosquitto
     restart: unless-stopped
-    user: "mosquitto:mosquitto"
+    user: "0:0"
     volumes:
       - ./certs:/mosquitto/certs:rw
       - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:rw
