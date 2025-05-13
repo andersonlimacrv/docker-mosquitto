@@ -5,7 +5,7 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Generate Certificate Authority (CA) certificate.")
-    parser.add_argument("--cn", type=str, default="CA_BROKER", help="Common Name (CN) for the CA certificate (default: CA_BROKER)")
+    parser.add_argument("--cn", type=str, default="CN_BROKER", help="Common Name (CN) for the CA certificate (default: CN_BROKER)")
     parser.add_argument("--days", type=int, default=3650, help="Certificate validity in days (default: 3650)")
     args = parser.parse_args()
 

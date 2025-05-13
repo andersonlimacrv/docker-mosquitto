@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import sys
 import ssl
 from pathlib import Path
+from mosquitto_auth.api.config import BROKER_CN
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -63,7 +64,7 @@ def test_mqtt_connection():
     print(f"👤 Username: {username}")
     print(f"📄 Certificate CN: {cn_client}")
 
-    host = 'localhost'
+    host = BROKER_CN
     port = 8883
 
     client = mqtt.Client(protocol=mqtt.MQTTv311, client_id=username)

@@ -5,7 +5,7 @@ import platform
 from dotenv import load_dotenv
 
 MOSQUITTO_PASSWD_WINDOWS = 'C:\\Program Files\\mosquitto\\mosquitto_passwd.exe'
-MOSQUITTO_PASSWD_LINUX = '/usr/bin/mosquitto_passwd'  # Caminho típico no Ubuntu
+MOSQUITTO_PASSWD_LINUX = '/usr/bin/mosquitto_passwd' 
 
 def get_env_users():
     """Retrieve all users and passwords from the .env file with the pattern USER_X / PASS_X"""
