@@ -9,6 +9,6 @@ x-api-key: {{api_key}}
 
 {
 
-  "username": "admin2",
-  "password": "admin2"
+  "username": "admin1",
+  "password": "admin1"
 }
