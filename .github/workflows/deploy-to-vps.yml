@@ -25,7 +25,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/github-actions-vps ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
             cd /home/deploy/apps/broker-mosquitto
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no" git pull origin main
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/acess-docker-mosquitto -o StrictHostKeyChecking=no" git pull origin main
             docker-compose down
             docker-compose up -d --build
           EOF
