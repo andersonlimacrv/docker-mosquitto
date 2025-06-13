@@ -2,6 +2,7 @@ import subprocess
 import os
 from pathlib import Path
 import argparse
+from mosquitto_auth.api.config import BROKER_CN
 
 def validate_ca_files(ca_key: Path, ca_crt: Path):
     if not ca_key.exists() or not ca_crt.exists():
@@ -29,12 +30,17 @@ def cleanup_temp_files(*files: Path):
 
 def main():
     parser = argparse.ArgumentParser(description="Generate MQTT broker certificate with SAN.")
-    parser.add_argument("cn", type=str, help="Common Name (IP or domain)")
+    parser.add_argument("--cn", type=str, help="Common Name (IP or domain)", default=None)
     parser.add_argument("--days", type=int, default=365, help="Validity in days")
     parser.add_argument("--keep-temp", action="store_true", help="Manter arquivos temporários")
     args = parser.parse_args()
 
-    # Converta todos os caminhos para absolutos
+    # Usa BROKER_CN se --cn não for fornecido
+    cn = args.cn if args.cn is not None else BROKER_CN
+    if not cn:
+        raise ValueError("Common Name (CN) não especificado e BROKER_CN não configurado")
+    
+    # Converte todos os caminhos para absolutos
     base_dir = Path(__file__).parent.parent.parent
     certs_dir = base_dir / "certs"
     broker_dir = certs_dir / "broker"
@@ -81,7 +87,7 @@ req_extensions = v3_req
 prompt = no
 
 [ req_distinguished_name ]
-CN = {args.cn}
+CN = {cn}
 
 [ v3_req ]
 basicConstraints = CA:FALSE
@@ -90,7 +96,7 @@ extendedKeyUsage = serverAuth
 subjectAltName = @alt_names
 
 [ alt_names ]
-IP.1 = {args.cn}
+IP.1 = {cn}
 IP.2 = 127.0.0.1
 DNS.1 = localhost
 """)
@@ -138,7 +144,7 @@ Arquivos:
 - Chave privada: {broker_key}
 - Certificado: {broker_crt}
 SANs incluídos:
-- IP: {args.cn}
+- IP: {cn}
 - IP: 127.0.0.1
 - DNS: localhost
 """)
