@@ -1,0 +1,22 @@
+# .dockerignore
+.git
+.gitignore
+README.md
+CERTIFICATE.md
+MOSQUITTO_DOCS.md
+LICENSE
+.github
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+.env
+.venv
+venv/
+.DS_Store
+*.log
+.idea
+.vscode
+tests/

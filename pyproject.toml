@@ -14,6 +14,7 @@ python-dotenv = "^1.1.0"
 paho-mqtt = "^2.1.0"
 fastapi = "^0.115.12"
 uvicorn = "^0.34.2"
+pydantic-settings = "^2.10.0"
 
 [tool.poetry.scripts]
 generate-pass = "mosquitto_auth.client.generate_users_password:main"
@@ -24,6 +25,8 @@ verify-broker-cert = "mosquitto_auth.broker.verify_broker_certificate:main"
 verify-client-cert = "mosquitto_auth.client.verify_client_certificate:main"
 test-mqtt = "tests.mqtt_client:test_mqtt_connection"
 test-passwords = "tests.mqtt_client:test_password_generation"
+
+start = "mosquitto_auth.api.main:start"
 
 [build-system]
 requires = ["poetry-core"]

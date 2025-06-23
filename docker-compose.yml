@@ -16,6 +16,26 @@ services:
     environment:
       - TZ=America/Sao_Paulo
 
+    
+  api:
+    build: .
+    container_name: mosquitto_api
+    restart: unless-stopped
+    volumes:
+      - ./certs:/app/certs:rw
+      - ./config:/app/config:rw
+      - ./log:/app/log:rw
+    ports:
+      - "8000:8000"
+    networks:
+      - mqtt_network
+    environment:
+      - TZ=America/Sao_Paulo
+    env_file:
+      - .env
+    depends_on:
+      - mosquitto
+
 
 networks:
   mqtt_network:
