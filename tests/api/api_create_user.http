@@ -8,7 +8,6 @@ Content-Type: application/json
 x-api-key: {{api_key}}
 
 {
-
   "username": "admin0",
   "password": "admin0"
 }

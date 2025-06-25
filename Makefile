@@ -13,11 +13,16 @@ restart:
 run-api:
 	poetry run uvicorn mosquitto_auth.api.main:app --reload --port 8000
 
-docker-logs: ## Ver logs de todos os serviços
+docker-logs: 
 	docker-compose logs -f
 
-api-logs: ## Ver logs apenas da API
+api-logs: 
 	docker-compose logs -f api
 
-mosquitto-logs: ## Ver logs apenas do Mosquitto
-	docker-compose logs -f mosquitto
+mosquitto-logs: 
+	docker-compose logs -f mosquitto 
+
+reborn:
+	docker-compose down
+	docker-compose build --no-cache
+	docker-compose up -d

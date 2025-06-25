@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import sys
 import ssl
 from pathlib import Path
-from mosquitto_auth.api.config import BROKER_CN
+from mosquitto_auth.api.config import settings
 
 BASE_DIR = Path(__file__).parent.parent
 
@@ -16,15 +16,21 @@ RC_MESSAGES = {
     6: "🚫 RC 6: Error - Unauthorized connection (other reasons)",
 }
 
+MAX_ATTEMPTS = 5
+attempt_count = 0
 
 def on_connect(client, userdata, flags, rc):
     """Callback for MQTT connection events"""
-    print("\n🔍 Connection result:")
-    print("=" * 80)
+    global attempt_count
+    attempt_count += 1
+    
+    print("\n🎯 Connection result:")
+    print("═" * 80)
 
     message = RC_MESSAGES.get(rc, "❗ Unknown error (reserved code)")
     print(f"🔢 Return code: {rc}")
-    print(f"📬 Status: {message}")
+    print(f"📈 Status: {message}")
+    print(f"🔁 Attempt: {attempt_count}/{MAX_ATTEMPTS}")
 
     if rc == 1:
         print("💡 Tip: Check the MQTT protocol version set in both the broker and the client.")
@@ -39,18 +45,27 @@ def on_connect(client, userdata, flags, rc):
             client.publish("test/connection", payload="MQTT secure test successful!", qos=1)
         except Exception as e:
             print(f"❌ Failed to publish test message: {e}")
+    
+    elif attempt_count >= MAX_ATTEMPTS:
+        print(f"❌ Maximum connection attempts ({MAX_ATTEMPTS}) reached. Stopping.")
+        client.disconnect()
+        client.loop_stop()
 
-    print("=" * 80)
+    print("═" * 80)
 
 
 def on_publish(client, userdata, mid):
     """Callback when a message is published"""
     print("✅ Test message published successfully!")
-    print("=" * 80)
+    print("═" * 80)
     client.disconnect()
+    client.loop_stop()
 
 
 def test_mqtt_connection():
+    global attempt_count
+    attempt_count = 0  
+    
     if len(sys.argv) < 4:
         print("❗ Usage: poetry run test-mqtt <username> <password> <CN_CLIENT>")
         return
@@ -63,11 +78,14 @@ def test_mqtt_connection():
     print("🔐 Authentication and TLS enabled")
     print(f"👤 Username: {username}")
     print(f"📄 Certificate CN: {cn_client}")
+    print(f"♻️ Max connection attempts: {MAX_ATTEMPTS}")
 
-    host = BROKER_CN
-    port = 8883
+    host = settings.BROKER_CN or "localhost"
+    port = settings.BROKER_PORT
 
     client = mqtt.Client(protocol=mqtt.MQTTv311, client_id=username)
+
+    client.reconnect_delay_set(min_delay=1, max_delay=3)
 
     try:
         client_cert_dir = BASE_DIR / f"certs/client/{cn_client}"

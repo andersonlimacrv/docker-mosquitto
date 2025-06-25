@@ -10,7 +10,7 @@ __pycache__/
 /log/
 
 # Poetry
-poetry.lock 
+#poetry.lock 
 
 # Editor/IDE
 .vscode/

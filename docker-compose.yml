@@ -26,7 +26,7 @@ services:
       - ./config:/app/config:rw
       - ./log:/app/log:rw
     ports:
-      - "8000:8000"
+      - "${api_port}:${api_port}"
     networks:
       - mqtt_network
     environment:

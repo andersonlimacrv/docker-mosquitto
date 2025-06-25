@@ -1,8 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from mosquitto_auth.api.create_user import router as user_router
-from mosquitto_auth.api.deploy import router as deploy_router
+from mosquitto_auth.api.routers.user import router as user_router
 from .config import settings
 
 app = FastAPI(
@@ -20,8 +19,6 @@ app.add_middleware(
 )
 
 app.include_router(user_router, prefix="/users", tags=["Users"])
-app.include_router(deploy_router, prefix="/webhook", tags=["Deploy"])
-
 
 @app.get("/")
 async def root():

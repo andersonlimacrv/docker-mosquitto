@@ -2,7 +2,7 @@ import subprocess
 import os
 from pathlib import Path
 import argparse
-from mosquitto_auth.api.config import BROKER_CN
+from mosquitto_auth.api.config import settings
 
 def validate_ca_files(ca_key: Path, ca_crt: Path):
     if not ca_key.exists() or not ca_crt.exists():
@@ -36,7 +36,7 @@ def main():
     args = parser.parse_args()
 
     # Usa BROKER_CN se --cn não for fornecido
-    cn = args.cn if args.cn is not None else BROKER_CN
+    cn = args.cn if args.cn is not None else settings.BROKER_CN
     if not cn:
         raise ValueError("Common Name (CN) não especificado e BROKER_CN não configurado")
     
