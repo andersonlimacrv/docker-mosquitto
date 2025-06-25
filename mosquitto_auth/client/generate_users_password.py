@@ -3,23 +3,31 @@ import re
 import subprocess
 import platform
 from dotenv import load_dotenv
+from typing import Dict
+from mosquitto_auth.core.validators import validate_single_user
 
 MOSQUITTO_PASSWD_WINDOWS = 'C:\\Program Files\\mosquitto\\mosquitto_passwd.exe'
 MOSQUITTO_PASSWD_LINUX = '/usr/bin/mosquitto_passwd' 
 
-def get_env_users():
-    """Retrieve all users and passwords from the .env file with the pattern USER_X / PASS_X"""
+def get_env_users() -> Dict[str, str]:
+    """Retrieve and validate all users/passwords from .env with pattern USER_X/PASS_X"""
     users = {}
     pattern = re.compile(r'^USER_(\d+)$')
 
     for key, user in os.environ.items():
-        match = pattern.match(key)
-        if match:
+        if match := pattern.match(key):
             index = match.group(1)
-            password = os.getenv(f"PASS_{index}")
-            if user and password:
-                users[user] = password
+            if password := os.getenv(f"PASS_{index}"):
+                try:
+                    valid_user, valid_pass = validate_single_user(user, password)
+                    users[valid_user] = valid_pass
+                except ValueError as e:
+                    print(f"⚠️ Invalid user {key}: {e}")
+                    continue
 
+    if not users:
+        raise ValueError("No valid users found in .env")
+    
     return users
 
 def get_mosquitto_passwd_cmd():
@@ -71,6 +79,7 @@ def main():
 
         os.makedirs('config', exist_ok=True)
 
+        print(f"👥 Users: {users}")
         generate_password_file(users, passwd_file)
         print(f"✓ File {passwd_file} successfully updated with {len(users)} user(s)!")
         print(f"✓ Detected OS: {platform.system()}")
