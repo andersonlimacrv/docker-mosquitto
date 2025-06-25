@@ -1,11 +1,10 @@
-# .dockerignore
-.git
+**/.git
 .gitignore
-README.md
-CERTIFICATE.md
-MOSQUITTO_DOCS.md
-LICENSE
-.github
+**/README.md
+**/CERTIFICATE.md
+**/MOSQUITTO_DOCS.md
+**/LICENSE
+**/.github
 __pycache__
 *.pyc
 *.pyo
@@ -17,5 +16,5 @@ venv/
 .DS_Store
 *.log
 .idea
-.vscode
-tests/
+**/.vscode
+

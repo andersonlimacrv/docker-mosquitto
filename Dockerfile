@@ -14,10 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --only main --no-root
+RUN poetry install --no-root --only main
 
 COPY . .
 
 RUN poetry install --only main
+
+RUN poetry cache clear --all pypi -n \
+    && rm -rf ~/.cache/pypoetry/cache \
+    && rm -rf ~/.cache/pypoetry/artifacts
 
 CMD ["poetry", "run", "start"]
