@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from mosquitto_auth.api.dependencies import ApiKeyDep
 from mosquitto_auth.api.models.users_file import UserListCreate
-from mosquitto_auth.client.generate_users_password import generate_password_file
+from mosquitto_auth.client.generate_users_password_file import generate_password_file
 from mosquitto_auth.api.config import settings
 import asyncio
 

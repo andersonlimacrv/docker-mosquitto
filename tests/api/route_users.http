@@ -1,0 +1,58 @@
+@base_url = {{$dotenv API_BASE_URL}}
+@api_key = {{$dotenv API_KEY}}
+
+### ❌ Teste 1: JSON inválido (chave errada "usuarios" em vez de "users")
+POST {{base_url}}/users/create-all
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "usuarios": {
+    "admin": "Str0ngP@ss!2024"
+  }
+}
+
+
+### ❌ Teste 2: Weak password
+POST {{base_url}}/users/create-all
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "users": {
+    "weak_user": "123"
+  }
+}
+
+
+### ❌ Teste 3: API key inválida
+POST {{base_url}}/users/create-all
+Content-Type: application/json
+x-api-key: invalid_key_123
+
+{
+  "users": {
+    "admin": "Str0ngP@ss!2024"
+  }
+}
+
+
+### ✅ Teste 4: Criação de múltiplos usuários com senhas fortes
+POST {{base_url}}/users/create-all
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "users": {
+    "admin": "Str0ngP@ss!2024",
+    "john_doe": "DoeJ@hn123",
+    "alice_wonder": "W0nd3r!@#",
+    "bob_builder": "B0bCanFix1t",
+    "charlie_tech": "T3chCh@rlie",
+    "data_scientist": "Sci3nt1stD@t@",
+    "dev_operator": "Dev0ps!Secure",
+    "mqtt_master": "MqttBr0k3r!",
+    "iot_engineer": "I0T@Eng1neer",
+    "security_god": "G0d0fSecur1ty!"
+  }
+}
