@@ -1,17 +1,13 @@
 from typing import Annotated
-from fastapi import HTTPException, Header, Request, Depends
+from fastapi import HTTPException, Depends, status
+from fastapi.security import APIKeyHeader
 from mosquitto_auth.api.config import settings
 
-async def verify_api_key(
-    request: Request,
-    x_api_key: Annotated[str, Header(..., description="Key for API access 🔐")],
-) -> bool:
-    if x_api_key != settings.API_KEY:
-        raise HTTPException(
-            status_code=403,
-            detail="Invalid API Key",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    return True
+api_key_scheme = APIKeyHeader(name="x-api-key", auto_error=True)
 
-ApiKeyDep = Annotated[bool, Depends(verify_api_key)]
+async def verify_api_key(api_key: Annotated[str, Depends(api_key_scheme)]) -> str:
+    if api_key != settings.API_KEY:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid API Key")
+    return api_key
+
+ApiKeyDep: Annotated[str, Depends(verify_api_key)] = Depends(verify_api_key)

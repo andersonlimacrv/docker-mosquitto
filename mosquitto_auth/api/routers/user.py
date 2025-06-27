@@ -1,6 +1,5 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, status
-from mosquitto_auth.api.dependencies import ApiKeyDep
 from mosquitto_auth.api.models.user import UserCreate, UserResponse
 from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
 
@@ -13,12 +12,11 @@ manager = MosquittoUserManager()
     status_code=status.HTTP_201_CREATED,
 )
 async def create_user(
-    user_data: UserCreate,
-    auth: ApiKeyDep
+    user_data: UserCreate
 ) -> UserResponse:
     """
-    - **username**: Valid username (3–32 alphanumeric characters)
-    - **password**: Strong password (minimum of 6 characters)
+    - **username**: Nome de usuário válido (3-32 caracteres alfanuméricos)
+    - **password**: Senha forte (mínimo 6 caracteres)
     """
     try:
         await asyncio.to_thread(

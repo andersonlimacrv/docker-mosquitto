@@ -1,5 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
+from mosquitto_auth.api.dependencies import ApiKeyDep
 from fastapi.middleware.cors import CORSMiddleware
 from mosquitto_auth.api.routers.user import router as user_router
 from .config import settings
@@ -7,7 +8,7 @@ from .config import settings
 app = FastAPI(
     title="Mosquitto Auth API",
     description="API for managing Mosquitto authentication users",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 app.add_middleware(
@@ -18,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(user_router, prefix="/users", tags=["Mosquitto Users 🦟"])
+app.include_router(user_router, prefix="/users", dependencies=[ApiKeyDep], tags=["Mosquitto Users 🦟"])
 
 @app.get("/", tags=["Root 🌱"])
 async def root():
