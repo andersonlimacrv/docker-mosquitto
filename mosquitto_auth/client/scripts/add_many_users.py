@@ -17,14 +17,14 @@ def main():
     
     args = parser.parse_args()
     manager = MosquittoUserManager(args.file, args.hash_alg)
-    
+    print(f"Users: {args.users}")
     try:
         users = parse_users(args.users)
         if not manager.add_many_users(users, args.overwrite):
             sys.exit(1)
             
     except Exception as e:
-        print(f"⛔ Erro crítico: {e}", file=sys.stderr)
+        print(f"❌ {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

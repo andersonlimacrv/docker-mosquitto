@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import APIRouter, HTTPException, status
 from mosquitto_auth.api.dependencies import ApiKeyDep
 from mosquitto_auth.api.models.user import UserCreate, UserResponse
@@ -10,33 +11,32 @@ manager = MosquittoUserManager()
     "",
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Adiciona um único usuário"
 )
 async def create_user(
     user_data: UserCreate,
     auth: ApiKeyDep
 ) -> UserResponse:
     """
-    - **username**: Nome de usuário válido (3-20 caracteres alfanuméricos)
-    - **password**: Senha forte (mínimo 6 caracteres)
+    - **username**: Valid username (3–32 alphanumeric characters)
+    - **password**: Strong password (minimum of 6 characters)
     """
     try:
-        if not manager.add_user(user_data.username, user_data.password):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Falha ao adicionar usuário {user_data.username}"
-            )
+        await asyncio.to_thread(
+            manager.add_user,
+            user_data.username,
+            user_data.password,
+            False,
+        )
+        return UserResponse(username=user_data.username, status="created")
 
-        return UserResponse(
-            username=user_data.username,
-            status="created"
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
         )
 
-    except HTTPException:
-        raise
-    except Exception as e:
+    except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
-

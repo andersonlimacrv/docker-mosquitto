@@ -24,7 +24,7 @@ def main():
         print(f"✅ Usuário {args.username} adicionado com sucesso")
             
     except Exception as e:
-        print(f"⛔ Erro crítico: {e}", file=sys.stderr)
+        print(f"❌ {e}", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":
