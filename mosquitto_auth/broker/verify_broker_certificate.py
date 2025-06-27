@@ -36,7 +36,7 @@ def verify_ca_signature(cert_path: Path, ca_cert_path: Path):
     )
     
     if "OK" in result.stdout:
-        print("✓ Certificado assinado pela CA confirmado")
+        print("✅ Certificado assinado pela CA confirmado")
     else:
         raise ValueError(f"❌ Falha na verificação da CA:\n{result.stderr}")
 
@@ -56,20 +56,20 @@ def verify_certificate_extensions(cert_path: Path):
     # Verifica SANs
     if "Subject Alternative Name" in output:
         san_section = output.split("Subject Alternative Name:")[1].split("\n")[0:3]
-        print("✓ Subject Alternative Names (SANs) presentes:")
+        print("✅ Subject Alternative Names (SANs) presentes:")
         print("\n".join(line.strip() for line in san_section if line.strip()))
     else:
         raise ValueError("❌ SANs não encontrados")
 
     # Verifica Key Usage
     if "Digital Signature" in output and "Key Encipherment" in output:
-        print("✓ Key Usage correto (digitalSignature, keyEncipherment)")
+        print("✅ Key Usage correto (digitalSignature, keyEncipherment)")
     else:
         raise ValueError("❌ Key Usage incorreto")
 
     # Verifica Extended Key Usage
     if "TLS Web Server Authentication" in output:
-        print("✓ Extended Key Usage correto (serverAuth)")
+        print("✅ Extended Key Usage correto (serverAuth)")
     else:
         raise ValueError("❌ Extended Key Usage incorreto")
 

@@ -1,6 +1,8 @@
 services:
   mosquitto:
-    image: eclipse-mosquitto:2.0.21-openssl
+    build:
+      context: .
+      dockerfile: docker/mosquitto/Dockerfile
     container_name: mosquitto
     restart: unless-stopped
     user: "0:0"
@@ -18,7 +20,9 @@ services:
 
     
   api:
-    build: .
+    build: 
+      context: .
+      dockerfile: docker/api/Dockerfile
     container_name: mosquitto_api
     restart: unless-stopped
     volumes:

@@ -1,5 +1,8 @@
-build:
+build-nc:
 	docker-compose build --no-cache
+
+build:
+	docker-compose build
 
 start:
 	docker-compose up -d
@@ -13,7 +16,7 @@ restart:
 run-api:
 	poetry run uvicorn mosquitto_auth.api.main:app --reload --port 8000
 
-docker-logs: 
+logs: 
 	docker-compose logs -f
 
 api-logs: 
@@ -24,5 +27,5 @@ mosquitto-logs:
 
 reborn:
 	docker-compose down
-	docker-compose build --no-cache
+	docker-compose build 
 	docker-compose up -d

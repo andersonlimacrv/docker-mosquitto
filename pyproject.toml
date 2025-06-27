@@ -17,7 +17,6 @@ uvicorn = "^0.34.2"
 pydantic-settings = "^2.10.0"
 
 [tool.poetry.scripts]
-generate-file-pass = "mosquitto_auth.client.generate_users_password_file:main"
 generate-cert = "mosquitto_auth.client.generate_users_certificate:main"
 generate-ca = "mosquitto_auth.ca.generate_ca:main"
 generate-broker-cert = "mosquitto_auth.broker.generate_broker_certificate:main"
@@ -26,9 +25,11 @@ verify-client-cert = "mosquitto_auth.client.verify_client_certificate:main"
 test-mqtt = "tests.mqtt_client:test_mqtt_connection"
 test-passwords = "tests.mqtt_client:test_password_generation"
 
-edit-pass = "mosquitto_auth.client.MosquittoUserManager:main"
-add-user = "mosquitto_auth.client.MosquittoUserManager:add_user"
-del-user = "mosquitto_auth.client.MosquittoUserManager:delete_user"
+generate-pass-file-by-env = "mosquitto_auth.client.scripts.gen_pass_file_by_env:main"
+add-user = "mosquitto_auth.client.scripts.add_user:main"
+edit-pass = "mosquitto_auth.client.scripts.edit_pass:main"
+del-user = "mosquitto_auth.client.scripts.del_user:main"
+add-many-users = "mosquitto_auth.client.scripts.add_many_users:main"
 
 start = "mosquitto_auth.api.main:start"
 

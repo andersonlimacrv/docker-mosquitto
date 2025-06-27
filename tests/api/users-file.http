@@ -2,7 +2,7 @@
 @api_key = {{$dotenv API_KEY}}
 
 ### ❌ Teste 1: JSON inválido (chave errada "usuarios" em vez de "users")
-POST {{base_url}}/users/create-all
+POST {{base_url}}/users-file/create-all
 Content-Type: application/json
 x-api-key: {{api_key}}
 
@@ -14,7 +14,7 @@ x-api-key: {{api_key}}
 
 
 ### ❌ Teste 2: Weak password
-POST {{base_url}}/users/create-all
+POST {{base_url}}/users-file/create-all
 Content-Type: application/json
 x-api-key: {{api_key}}
 
@@ -26,7 +26,7 @@ x-api-key: {{api_key}}
 
 
 ### ❌ Teste 3: API key inválida
-POST {{base_url}}/users/create-all
+POST {{base_url}}/users-file/create-all
 Content-Type: application/json
 x-api-key: invalid_key_123
 
@@ -38,7 +38,7 @@ x-api-key: invalid_key_123
 
 
 ### ✅ Teste 4: Criação de múltiplos usuários com senhas fortes
-POST {{base_url}}/users/create-all
+POST {{base_url}}/users-file/create-all
 Content-Type: application/json
 x-api-key: {{api_key}}
 

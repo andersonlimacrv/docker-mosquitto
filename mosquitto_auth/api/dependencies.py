@@ -4,7 +4,7 @@ from mosquitto_auth.api.config import settings
 
 async def verify_api_key(
     request: Request,
-    x_api_key: Annotated[str, Header(..., description="Chave API para autenticação")]
+    x_api_key: Annotated[str, Header(..., description="Key for API access 🔐")],
 ) -> bool:
     if x_api_key != settings.API_KEY:
         raise HTTPException(
