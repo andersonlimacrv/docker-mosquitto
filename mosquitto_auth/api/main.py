@@ -1,9 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
-from mosquitto_auth.api.dependencies import ApiKeyDep
-from fastapi.middleware.cors import CORSMiddleware
-from mosquitto_auth.api.routers.user import router as user_router
-from .config import settings
+from mosquitto_auth.api.core.cors import setup_cors
+from mosquitto_auth.api.core.routes import register_routes
+from .core.config import settings
 
 app = FastAPI(
     title="Mosquitto Auth API",
@@ -11,33 +10,25 @@ app = FastAPI(
     version="1.0.0",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], 
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+setup_cors(app)
+register_routes(app)
 
-app.include_router(user_router, prefix="/users", dependencies=[ApiKeyDep], tags=["Mosquitto Users 🦟"])
 
 @app.get("/", tags=["Root 🌱"])
 async def root():
     return {
         "message": "Mosquitto Auth API",
-        "version": "1.0.0",
-        "docs": "/docs"
+        "docs": f"http://localhost:{settings.API_PORT}/docs"
     }
 
 def start():
-    """
-    Start the FastAPI application using Uvicorn.
-    This function is intended to be called when running the application directly.
-    """
     uvicorn.run(
         "mosquitto_auth.api.main:app",
         host=settings.api_host,
-        port=settings.api_port,
+        port=settings.API_PORT,
         reload=settings.api_debug,
         log_level=settings.log_level.lower()
     )
+
+if __name__ == "__main__":
+    start()

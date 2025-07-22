@@ -14,16 +14,12 @@ manager = MosquittoUserManager()
 async def create_user(
     user_data: UserCreate
 ) -> UserResponse:
-    """
-    - **username**: Nome de usuário válido (3-32 caracteres alfanuméricos)
-    - **password**: Senha forte (mínimo 6 caracteres)
-    """
     try:
         await asyncio.to_thread(
             manager.add_user,
             user_data.username,
             user_data.password,
-            False,
+            overwrite=False,
         )
         return UserResponse(username=user_data.username, status="created")
 
@@ -38,3 +34,13 @@ async def create_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+    
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+    
+
+    
+

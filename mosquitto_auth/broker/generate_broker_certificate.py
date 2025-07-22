@@ -2,7 +2,7 @@ import subprocess
 import os
 from pathlib import Path
 import argparse
-from mosquitto_auth.api.config import settings
+from mosquitto_auth.api.core.config import settings
 
 def validate_ca_files(ca_key: Path, ca_crt: Path):
     if not ca_key.exists() or not ca_crt.exists():

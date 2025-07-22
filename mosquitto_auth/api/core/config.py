@@ -3,11 +3,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     # ⚙️ API Settings
+    API_PORT: int = 8000
+    API_KEY: str
     api_host: str = "0.0.0.0"
-    api_port: int = 8000
     api_debug: bool = True
     log_level: str = "INFO"
-    API_KEY: str
     
     # 🪰 Mosquitto Settings
     BROKER_CN: str

@@ -5,7 +5,7 @@ import subprocess
 from typing import List, Dict, Any
 from pathlib import Path
 from mosquitto_auth.core.validators import validate_single_user
-from mosquitto_auth.api.config import settings
+from mosquitto_auth.api.core.config import settings
 
 class MosquittoUserManager:
     MOSQUITTO_PATHS: Dict[str, str] = {
@@ -121,3 +121,10 @@ class MosquittoUserManager:
                 if line.startswith(username + ":"):
                     return True
         return False
+    
+    def list_users(self) -> List[str]:
+        if not self.passwd_file.exists():
+            print(f"❌ Passwd file not found: {self.passwd_file}", file=sys.stderr)
+            return []
+        with open(self.passwd_file, 'r') as f:
+            return [line.split(":")[0] for line in f]

@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import sys
 import ssl
 from pathlib import Path
-from mosquitto_auth.api.config import settings
+from mosquitto_auth.api.core.config import settings
 
 BASE_DIR = Path(__file__).parent.parent
 

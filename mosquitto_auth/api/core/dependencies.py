@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import HTTPException, Depends, status
 from fastapi.security import APIKeyHeader
-from mosquitto_auth.api.config import settings
+from mosquitto_auth.api.core.config import settings
 
 api_key_scheme = APIKeyHeader(name="x-api-key", auto_error=True)
 
