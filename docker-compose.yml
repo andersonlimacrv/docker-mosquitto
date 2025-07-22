@@ -30,7 +30,7 @@ services:
       - ./config:/app/config:rw
       - ./log:/app/log:rw
     ports:
-      - "${api_port}:${api_port}"
+      - "${API_PORT}:${API_PORT}"
     networks:
       - mqtt_network
     environment:
