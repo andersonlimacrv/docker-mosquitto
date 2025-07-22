@@ -1,7 +1,7 @@
 import argparse
 import sys
 from pathlib import Path
-from mosquitto_auth.api.config import settings
+from mosquitto_auth.api.core.config import settings
 from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
 
 def main():
