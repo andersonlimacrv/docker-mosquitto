@@ -15,11 +15,13 @@ class Settings(BaseSettings):
     PASSWD_FILE_PATH: Path = Path("./config/mosquitto.passwd")
     
     # 🔐 CERTS
-    certs_dir: str = "/app/certs"
-    ca_cert_path: str = "/app/certs/ca.crt"
-    ca_key_path: str = "/app/certs/ca.key"
-    broker_cert_path: str = "/app/certs/broker/broker.crt"
-    client_certs_dir: str = "/app/certs/client"
+    certs_dir: str = "certs"
+    ca_cert_path: str = "certs/ca.crt"
+    ca_key_path: str = "certs/ca.key"
+    broker_cert_path: str = "certs/broker/broker.crt"
+    broker_key_path: str = "certs/broker/broker.key"
+    broker_dir: str = "certs/broker"
+    client_certs_dir: str = "certs/client"
     
     model_config = SettingsConfigDict(
         env_file=".env", 

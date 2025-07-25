@@ -44,13 +44,10 @@ def generate_client_certificate(cn: str, days: int, keep_temp: bool = False):
     crt_path = client_dir / f"{cn}.crt"
     config_path = client_dir / "openssl.cnf"
 
-    # 1. Gera arquivo de configuração
     generate_openssl_config(cn, config_path)
 
-    # 2. Gera chave privada
     run_cmd(["openssl", "genrsa", "-out", str(key_path), "2048"])
 
-    # 3. Gera CSR
     run_cmd([
         "openssl", "req", "-new",
         "-key", str(key_path),
@@ -58,7 +55,6 @@ def generate_client_certificate(cn: str, days: int, keep_temp: bool = False):
         "-config", str(config_path)
     ])
 
-    # 4. Assina o certificado
     run_cmd([
         "openssl", "x509", "-req",
         "-in", str(csr_path),
@@ -72,7 +68,6 @@ def generate_client_certificate(cn: str, days: int, keep_temp: bool = False):
         "-extensions", "v3_req"
     ])
 
-    # 5. Limpeza
     if not keep_temp:
         temp_files = [csr_path, config_path]
         for file in temp_files:

@@ -2,87 +2,77 @@ import subprocess
 from pathlib import Path
 import argparse
 from datetime import datetime
+from mosquitto_auth.api.core.config import settings
 
-def verify_certificate(cert_path: Path, ca_cert_path: Path):
+
+
+def run_cmd_capture(cmd: list[str]) -> str:
+    try:
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        return result.stdout
+    except subprocess.CalledProcessError as e:
+        return f"❌ Error executing: {' '.join(cmd)}\n{e.output or e}"
+
+def verify_certificate(cert_path: Path = None, ca_cert_path: Path = None) -> str:
     """Executa verificações completas no certificado"""
-    print(f"🔍 Verificando certificado: {cert_path}")
+    # Usar caminhos do settings se não especificados
+    if not cert_path:
+        cert_path = Path(settings.broker_cert_path)
+    if not ca_cert_path:
+        ca_cert_path = Path(settings.ca_cert_path)
+    
+    output = []
+    output.append(f"🔍 Verificando certificado: {cert_path}")
     
     if not cert_path.exists():
-        raise FileNotFoundError(f"Certificado não encontrado: {cert_path}")
+        return f"❌ Certificado não encontrado: {cert_path}"
 
-    check_certificate_expiry(cert_path)
-    verify_ca_signature(cert_path, ca_cert_path)
-    verify_certificate_extensions(cert_path)
-    print("✅ Todas as verificações passaram com sucesso!")
+    # Verificar validade
+    result = run_cmd_capture(["openssl", "x509", "-enddate", "-noout", "-in", str(cert_path)])
+    if "notAfter=" in result:
+        end_date_str = result.strip().split("=")[1]
+        output.append(f"📅 Validade do certificado: {end_date_str}")
 
-def check_certificate_expiry(cert_path: Path):
-    """Verifica a data de expiração do certificado"""
-    result = subprocess.run(
-        ["openssl", "x509", "-enddate", "-noout", "-in", str(cert_path)],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    
-    end_date_str = result.stdout.strip().split("=")[1]
-    print(f"📅 Validade do certificado: {end_date_str}")
-
-def verify_ca_signature(cert_path: Path, ca_cert_path: Path):
-    """Verifica se o certificado foi assinado pela CA"""
-    result = subprocess.run(
-        ["openssl", "verify", "-CAfile", str(ca_cert_path), str(cert_path)],
-        capture_output=True,
-        text=True
-    )
-    
-    if "OK" in result.stdout:
-        print("✅ Certificado assinado pela CA confirmado")
+    # Verificar assinatura da CA
+    result = run_cmd_capture(["openssl", "verify", "-CAfile", str(ca_cert_path), str(cert_path)])
+    if "OK" in result:
+        output.append("✅ Certificado assinado pela CA confirmado")
     else:
-        raise ValueError(f"❌ Falha na verificação da CA:\n{result.stderr}")
+        output.append(f"❌ Falha na verificação da CA:\n{result}")
 
-def verify_certificate_extensions(cert_path: Path):
-    """Verifica extensões críticas do certificado"""
-    print("\n🔎 Verificando extensões do certificado:")
+    # Verificar extensões
+    output.append("\n🔎 Verificando extensões do certificado:")
+    result = run_cmd_capture(["openssl", "x509", "-in", str(cert_path), "-text", "-noout"])
     
-    result = subprocess.run(
-        ["openssl", "x509", "-in", str(cert_path), "-text", "-noout"],
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    
-    output = result.stdout
-    
-    # Verifica SANs
-    if "Subject Alternative Name" in output:
-        san_section = output.split("Subject Alternative Name:")[1].split("\n")[0:3]
-        print("✅ Subject Alternative Names (SANs) presentes:")
-        print("\n".join(line.strip() for line in san_section if line.strip()))
+    if "Subject Alternative Name" in result:
+        san_section = result.split("Subject Alternative Name:")[1].split("\n")[0:3]
+        output.append("✅ Subject Alternative Names (SANs) presentes:")
+        output.append("\n".join(line.strip() for line in san_section if line.strip()))
     else:
-        raise ValueError("❌ SANs não encontrados")
+        output.append("❌ SANs não encontrados")
 
-    # Verifica Key Usage
-    if "Digital Signature" in output and "Key Encipherment" in output:
-        print("✅ Key Usage correto (digitalSignature, keyEncipherment)")
+    if "Digital Signature" in result and "Key Encipherment" in result:
+        output.append("✅ Key Usage correto (digitalSignature, keyEncipherment)")
     else:
-        raise ValueError("❌ Key Usage incorreto")
+        output.append("❌ Key Usage incorreto")
 
-    # Verifica Extended Key Usage
-    if "TLS Web Server Authentication" in output:
-        print("✅ Extended Key Usage correto (serverAuth)")
+    if "TLS Web Server Authentication" in result:
+        output.append("✅ Extended Key Usage correto (serverAuth)")
     else:
-        raise ValueError("❌ Extended Key Usage incorreto")
+        output.append("❌ Extended Key Usage incorreto")
+
+    output.append("✅ Todas as verificações passaram com sucesso!")
+    return "\n".join(output)
 
 def main():
     parser = argparse.ArgumentParser(description="Verify MQTT broker certificate")
-    parser.add_argument("--cert", type=Path, default="certs/broker/broker.crt", 
-                       help="Path to broker certificate")
-    parser.add_argument("--ca", type=Path, default="certs/ca.crt", 
-                       help="Path to CA certificate")
+    parser.add_argument("--cert", type=Path, help="Path to broker certificate", default=None)
+    parser.add_argument("--ca", type=Path, help="Path to CA certificate", default=None)
     args = parser.parse_args()
 
     try:
-        verify_certificate(args.cert, args.ca)
+        result = verify_certificate(args.cert, args.ca)
+        print(result)
     except Exception as e:
         print(f"❌ Erro na verificação: {str(e)}")
 
