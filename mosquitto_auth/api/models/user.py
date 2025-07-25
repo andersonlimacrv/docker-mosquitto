@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 from typing import List
-from mosquitto_auth.core.validators import UsernameStr, PasswordStr
+from mosquitto_auth.lib.validators import UsernameStr, PasswordStr
 
 class UserCreate(BaseModel):
     username: UsernameStr

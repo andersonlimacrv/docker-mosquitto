@@ -4,7 +4,7 @@ import platform
 import subprocess
 from typing import List, Dict, Any
 from pathlib import Path
-from mosquitto_auth.core.validators import validate_single_user
+from mosquitto_auth.lib.validators import validate_single_user
 from mosquitto_auth.api.core.config import settings
 
 class MosquittoUserManager:

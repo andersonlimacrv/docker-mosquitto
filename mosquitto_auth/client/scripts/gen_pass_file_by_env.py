@@ -5,7 +5,7 @@ import platform
 from typing import Dict
 from dotenv import load_dotenv
 from mosquitto_auth.api.core.config import settings
-from mosquitto_auth.core.validators import validate_single_user
+from mosquitto_auth.lib.validators import validate_single_user
 from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
 
 def get_env_users() -> Dict[str, str]:
