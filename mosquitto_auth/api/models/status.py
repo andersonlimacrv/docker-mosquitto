@@ -6,3 +6,7 @@ class UserStatus(str, Enum):
     DELETED = "DELETED"
     NOT_FOUND = "NOT FOUND"
     ERROR = "ERROR"
+
+class CertificateStatus(str, Enum):
+    CREATED = "CREATED"
+    ERROR = "ERROR"

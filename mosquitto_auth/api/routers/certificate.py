@@ -1,23 +1,148 @@
 import asyncio
 from fastapi import APIRouter, HTTPException, status
-from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
-
+from fastapi.responses import FileResponse, Response
+from pathlib import Path
+import zipfile
+import io
+import shutil
+import re
+from mosquitto_auth.api.models.certificate import CertificateCreate, CertificateResponse, CertificateVerificationResponse
+from mosquitto_auth.api.models.status import CertificateStatus
+from mosquitto_auth.api.models.responses import CertificateMessages
+from mosquitto_auth.client.certificate.generate_users_certificate import generate_client_certificate, CA_CERT, CA_KEY, CERTS_BASE_DIR
+from mosquitto_auth.client.certificate.delete_user_certificate import delete_user_certificate
+from mosquitto_auth.client.certificate.verify_client_certificate import verify_certificate
 
 router = APIRouter()
-user_manager = MosquittoUserManager
+
+@router.post(
+    "/client",
+    response_model=CertificateResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_certificate(data: CertificateCreate) -> CertificateResponse:
+    try:
+        if not CA_CERT.exists() or not CA_KEY.exists():
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Certificado ou chave da CA não encontrados."
+            )
+        await asyncio.to_thread(
+            generate_client_certificate, data.username, data.days if data.days is not None else 365, False
+        )
+        cert_dir = CERTS_BASE_DIR / data.username
+        crt_path = cert_dir / f"{data.username}.crt"
+        key_path = cert_dir / f"{data.username}.key"
+        if not crt_path.exists():
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Certificado não foi gerado para '{data.username}'."
+            )
+        message = CertificateMessages.CERTIFICATE_CREATED.format(username=data.username)
+        return CertificateResponse(
+            username=data.username,
+            status=CertificateStatus.CREATED,
+            message=message,
+            cert_path=str(crt_path),
+            key_path=str(key_path)
+        )
+    except Exception as e:
+        message = CertificateMessages.CERTIFICATE_ERROR.format(username=data.username)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"{message}: {e}"
+        )
 
 
 @router.get(
-  "",
-  response_model=str,
-  status_code=status.HTTP_200_OK,
+    "/client",
+    status_code=status.HTTP_200_OK,
+    summary="Listar todos os certificados de usuário"
 )
-async def get_certificate() -> str:
-  try:
-    message_test = 'test'  
-    return message_test
-  except RuntimeError as e:
-    raise HTTPException(
-      status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-      detail=str(e)
+async def list_client_certificates():
+    if not CERTS_BASE_DIR.exists() or not CERTS_BASE_DIR.is_dir():
+        return {"certificates": []}
+    users = [p.name for p in CERTS_BASE_DIR.iterdir() if p.is_dir()]
+    return {"certificates": users}
+
+
+@router.get(
+    "/client/{username}",
+    response_class=FileResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Baixar certificado e chave do usuário (.zip)"
+)
+async def get_client_certificate_bundle(username: str):
+    cert_dir = CERTS_BASE_DIR / username
+    cert_path = cert_dir / f"{username}.crt"
+    key_path = cert_dir / f"{username}.key"
+    if not cert_path.exists() or not key_path.exists():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Certificado ou chave para '{username}' não encontrado(s)."
+        )
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zipf:
+        zipf.write(cert_path, arcname=f"{username}.crt")
+        zipf.write(key_path, arcname=f"{username}.key")
+    zip_buffer.seek(0)
+    return Response(
+        content=zip_buffer.read(),
+        media_type="application/zip",
+        headers={
+            "Content-Disposition": f"attachment; filename={username}_cert_bundle.zip"
+        }
     )
+
+
+@router.get(
+    "/client/{username}/verify",
+    status_code=status.HTTP_200_OK,
+    summary="Verificar informações do certificado do usuário",
+    response_model=CertificateVerificationResponse
+)
+async def get_client_certificate_verification(username: str):
+    result = await asyncio.to_thread(verify_certificate, username)
+    if result.startswith("❌"):
+        raise HTTPException(status_code=404, detail=result)
+
+    validity = None
+    expiration = None
+    signature_status = None
+    for line in result.splitlines():
+        if line.strip().startswith("notBefore="):
+            validity = line.strip().replace("notBefore=", "")
+        elif line.strip().startswith("notAfter="):
+            expiration = line.strip().replace("notAfter=", "")
+        elif ": OK" in line:
+            signature_status = "OK"
+        elif ": " in line and not signature_status:
+            signature_status = line.split(":", 1)[-1].strip()
+
+    return CertificateVerificationResponse(
+        valid_from=validity,
+        valid_until=expiration,
+        signature_status=signature_status
+    )
+
+
+@router.delete(
+    "/client/{username}",
+    status_code=status.HTTP_200_OK,
+    summary="Remover certificado e chave do usuário"
+)
+async def delete_client_certificate(username: str):
+    try:
+        delete_user_certificate(username)
+        return {"message": f"Certificado e chave de '{username}' removidos com sucesso."}
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Diretório de certificado para '{username}' não encontrado."
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao remover certificado: {e}"
+        )
+

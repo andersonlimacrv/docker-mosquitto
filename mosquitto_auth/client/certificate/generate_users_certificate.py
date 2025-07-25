@@ -35,6 +35,7 @@ extendedKeyUsage = clientAuth
 """)
 
 def generate_client_certificate(cn: str, days: int, keep_temp: bool = False):
+    cn = cn.lower()
     client_dir = CERTS_BASE_DIR / cn
     client_dir.mkdir(parents=True, exist_ok=True)
 

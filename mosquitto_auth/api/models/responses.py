@@ -9,3 +9,7 @@ class UserMessages(str, Enum):
     PASSWORD_UPDATED = "Password for user '{username}' updated successfully."
     USER_LISTED = "Users listed successfully."
     USER_INVALID = "User '{username}' is invalid."
+
+class CertificateMessages(str, Enum):
+    CERTIFICATE_CREATED = "Certificado para '{username}' criado com sucesso."
+    CERTIFICATE_ERROR = "Erro ao criar certificado para '{username}'."
