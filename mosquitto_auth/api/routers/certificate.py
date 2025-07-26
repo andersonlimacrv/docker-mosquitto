@@ -9,6 +9,7 @@ from mosquitto_auth.api.models.certificate import (
     CertificateCreate, CertificateResponse, CertificateVerificationResponse,
     BrokerCertificateResponse, BrokerCertificateVerificationResponse, BrokerCertificateDeleteResponse
 )
+from mosquitto_auth.api.core.config import settings
 from mosquitto_auth.api.models.status import CertificateStatus
 from mosquitto_auth.api.models.responses import CertificateMessages
 from mosquitto_auth.client.certificate.generate_users_certificate import generate_client_certificate, CA_CERT, CA_KEY, CERTS_BASE_DIR
@@ -47,9 +48,7 @@ async def create_certificate(data: CertificateCreate) -> CertificateResponse:
         return CertificateResponse(
             username=data.username,
             status=CertificateStatus.CREATED,
-            message=message,
-            cert_path=str(crt_path),
-            key_path=str(key_path)
+            message=message
         )
     except Exception as e:
         message = CertificateMessages.CERTIFICATE_ERROR.format(username=data.username)
@@ -158,7 +157,7 @@ async def delete_client_certificate(username: str):
     status_code=status.HTTP_201_CREATED,
     summary="Gerar certificado do broker"
 )
-async def create_broker_certificate(cn: str = None, days: int = 365):
+async def create_broker_certificate(cn: str = settings.BROKER_CN, days: int = 365):
     try:
         await asyncio.to_thread(generate_broker_certificate, cn, days, False)
         return BrokerCertificateResponse(

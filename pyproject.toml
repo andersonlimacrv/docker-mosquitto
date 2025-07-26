@@ -22,6 +22,8 @@ generate-ca = "mosquitto_auth.ca.generate_ca:main"
 generate-broker-cert = "mosquitto_auth.broker.generate_broker_certificate:main"
 verify-broker-cert = "mosquitto_auth.broker.verify_broker_certificate:main"
 verify-client-cert = "mosquitto_auth.client.certificate.verify_client_certificate:main"
+verify-ca-cert = "mosquitto_auth.ca.verify_ca:main"
+delete-ca-cert = "mosquitto_auth.ca.delete_ca:main"
 test-mqtt = "tests.mqtt_client:test_mqtt_connection"
 test-passwords = "tests.mqtt_client:test_password_generation"
 
