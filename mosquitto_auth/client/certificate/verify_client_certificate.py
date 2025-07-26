@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
 import subprocess
+from mosquitto_auth.api.core.config import settings
 
-CA_CERT = Path("./certs/ca.crt")
-CLIENT_BASE = Path("./certs/client")
-
+CA_CERT = settings.ca_cert_path
+CLIENT_BASE = settings.client_certs_dir
 
 def run_cmd(cmd: list[str]):
     try:
@@ -19,8 +19,9 @@ def run_cmd_capture(cmd: list[str]) -> str:
         return result.stdout
     except subprocess.CalledProcessError as e:
         return f"❌ Error executing: {' '.join(cmd)}\n{e.output or e}"
+    
 
-def verify_certificate(cn: str) -> str:
+def verify_certificate_client(cn: str) -> str:
     client_dir = CLIENT_BASE / cn
     crt_path = client_dir / f"{cn}.crt"
 
@@ -46,7 +47,7 @@ def main():
         sys.exit(1)
 
     cn = sys.argv[1]
-    print(verify_certificate(cn))
+    print(verify_certificate_client(cn))
 
 
 if __name__ == "__main__":

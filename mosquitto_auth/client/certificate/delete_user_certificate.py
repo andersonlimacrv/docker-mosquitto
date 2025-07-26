@@ -1,6 +1,8 @@
 from pathlib import Path
 import shutil
-from mosquitto_auth.client.certificate.generate_users_certificate import CERTS_BASE_DIR
+from mosquitto_auth.api.core.config import settings
+
+CERTS_BASE_DIR = settings.client_certs_dir
 
 def delete_user_certificate(username: str):
     cert_dir = CERTS_BASE_DIR / username

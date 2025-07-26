@@ -3,11 +3,12 @@ import subprocess
 import sys
 from pathlib import Path
 import argparse
+from mosquitto_auth.api.core.config import settings
 
 DEFAULT_DAYS = 365
-CERTS_BASE_DIR = Path("certs/client")
-CA_CERT = Path("certs/ca.crt")
-CA_KEY = Path("certs/ca.key")
+CERTS_BASE_DIR = settings.client_certs_dir
+CA_CERT = settings.ca_cert_path 
+CA_KEY = settings.ca_key_path
 
 def run_cmd(command: list[str]):
     """Executa um comando do sistema e exibe erro, se ocorrer."""

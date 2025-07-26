@@ -13,10 +13,10 @@ from mosquitto_auth.api.models.status import CertificateStatus
 from mosquitto_auth.api.models.responses import CertificateMessages
 from mosquitto_auth.client.certificate.generate_users_certificate import generate_client_certificate, CA_CERT, CA_KEY, CERTS_BASE_DIR
 from mosquitto_auth.client.certificate.delete_user_certificate import delete_user_certificate
-from mosquitto_auth.client.certificate.verify_client_certificate import verify_certificate
+from mosquitto_auth.client.certificate.verify_client_certificate import verify_certificate_client
 from mosquitto_auth.broker.generate_broker_certificate import generate_broker_certificate
 from mosquitto_auth.broker.delete_broker_certificate import delete_broker_certificate as delete_broker_cert_func
-from mosquitto_auth.broker.verify_broker_certificate import verify_certificate as verify_broker_cert_func
+from mosquitto_auth.broker.verify_broker_certificate import verify_broker_certificate 
 
 router = APIRouter()
 
@@ -107,7 +107,7 @@ async def get_client_certificate_bundle(username: str):
     response_model=CertificateVerificationResponse
 )
 async def get_client_certificate_verification(username: str):
-    result = await asyncio.to_thread(verify_certificate, username)
+    result = await asyncio.to_thread(verify_certificate_client, username)
     if result.startswith("❌"):
         raise HTTPException(status_code=404, detail=result)
 
@@ -175,66 +175,49 @@ async def create_broker_certificate(cn: str = None, days: int = 365):
     status_code=status.HTTP_200_OK,
     summary="Verificar certificado do broker"
 )
-async def verify_broker_certificate():
+async def get_verify_broker_certificate():
     try:
-        result = await asyncio.to_thread(verify_broker_cert_func)
-        
-        valid_until = None
-        ca_signature = None
+        result = await asyncio.to_thread(verify_broker_certificate)
+
+        if result.get("status") == "ERROR":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=result.get("message", "Certificado não encontrado.")
+            )
+
+        valid_until = result.get("valid_until")
+        ca_signature = "OK" if result.get("ca_verified") else None
+        san_raw = result.get("san_list", [])
         san = []
-        key_usage = None
-        extended_key_usage = None
-        status = None
-        # TODO @anderson: Refatorar extended_key_usage, retornando NULL 
-        for line in result.splitlines():
-            if "Validade do certificado:" in line:
-                valid_until = line.split(":", 1)[-1].strip()
-            elif "assinado pela CA confirmado" in line:
-                ca_signature = "OK"
-            elif "SANs presentes" in line:
-                status = "SAN_OK"
-            elif "Key Usage correto" in line:
-                key_usage = "OK"
-            elif "Extended Key Usage correto" in line:
-                extended_key_usage = "OK"
-            elif "TLS Web Server Authentication" in line:
-                extended_key_usage = "OK"
-            elif "serverAuth" in line:
-                extended_key_usage = "OK"
-            elif "erro" in line.lower() or "falha" in line.lower():
-                status = line.strip()
-            elif "IP Address:" in line or "DNS:" in line:
-                # Captura SANs da saída real do OpenSSL
-                san_line = line.strip()
-                if "IP Address:" in san_line:
-                    ip_parts = san_line.split("IP Address:")[1].strip().split(",")
-                    for ip in ip_parts:
-                        ip_clean = ip.strip()
-                        if ip_clean:  # Só adiciona se não estiver vazio
-                            san.append(f"IP: {ip_clean}")
-                if "DNS:" in san_line:
-                    dns_parts = san_line.split("DNS:")[1].strip().split(",")
-                    for dns in dns_parts:
-                        dns_clean = dns.strip()
-                        if dns_clean:  # Só adiciona se não estiver vazio
-                            san.append(f"DNS: {dns_clean}")
-        
-        # Se não encontrou SANs específicos mas a verificação passou, marcar como OK
-        if not san and "SANs presentes" in result:
-            status = "SAN_OK"
-        elif not status and "Todas as verificações passaram" in result:
-            status = "OK"
-        
+
+        for entry in san_raw:
+            if "IP Address:" in entry:
+                ip_parts = entry.replace("IP Address:", "").split(",")
+                san.extend([f"IP: {ip.strip()}" for ip in ip_parts if ip.strip()])
+            elif "DNS:" in entry:
+                dns_parts = entry.replace("DNS:", "").split(",")
+                san.extend([f"DNS: {dns.strip()}" for dns in dns_parts if dns.strip()])
+
+        key_usage = "OK" if result.get("key_usage_valid") else None
+        extended_key_usage = "OK" if result.get("extended_key_usage_valid") else None
+        status_value = result.get("status")
+
         return BrokerCertificateVerificationResponse(
             valid_until=valid_until,
             ca_signature=ca_signature,
             san=san or None,
             key_usage=key_usage,
             extended_key_usage=extended_key_usage,
-            status=status
+            status=status_value
         )
+
+    except HTTPException:
+        raise 
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao verificar certificado do broker: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erro ao verificar certificado do broker: {e}"
+        )
 
 @router.delete(
     "/broker",

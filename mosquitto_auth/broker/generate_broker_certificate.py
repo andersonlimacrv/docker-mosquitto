@@ -37,7 +37,6 @@ def generate_broker_certificate(cn: str = None, days: int = 365, keep_temp: bool
     if not cn:
         raise ValueError("Common Name (CN) não especificado e BROKER_CN não configurado")
     
-    # Usar caminhos do settings se não especificados
     if not ca_key_path:
         ca_key_path = settings.ca_key_path
     if not ca_cert_path:
@@ -59,7 +58,6 @@ def generate_broker_certificate(cn: str = None, days: int = 365, keep_temp: bool
     broker_crt = base_dir / settings.broker_cert_path
     openssl_cnf = broker_dir_path / "openssl.cnf"
 
-    # Geração dinâmica do bloco [alt_names]
     alt_names = ""
     try:
         ipaddress.ip_address(cn)
