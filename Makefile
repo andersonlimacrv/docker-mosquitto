@@ -29,6 +29,4 @@ mosquitto-logs:
 	docker-compose logs -f mosquitto 
 
 reborn:
-	docker-compose down &&
-	docker-compose build --no-cache &&
-	docker-compose up -d
+	docker-compose down && docker-compose build --no-cache && docker-compose up -d
