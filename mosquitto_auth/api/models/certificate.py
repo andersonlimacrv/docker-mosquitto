@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from mosquitto_auth.lib.validators import UsernameStr
 from typing import Optional
+from mosquitto_auth.api.core.config import settings
+
 
 class CertificateCreate(BaseModel):
     username: UsernameStr
@@ -17,6 +19,10 @@ class CertificateVerificationResponse(BaseModel):
     valid_from: Optional[str] = None
     valid_until: Optional[str] = None
     signature_status: Optional[str] = None
+
+class BrokerCertificateRequest(BaseModel):
+    cn: Optional[str] = None
+    days: Optional[int] = 365
 
 class BrokerCertificateResponse(BaseModel):
     username: str

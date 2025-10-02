@@ -10,7 +10,7 @@ up:
 deploy:
 	docker-compose down && docker-compose up -d --build
 
-stop:
+down:
 	docker-compose down
 
 restart:

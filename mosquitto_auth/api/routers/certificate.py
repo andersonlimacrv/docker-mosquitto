@@ -7,7 +7,7 @@ import shutil
 import re
 from mosquitto_auth.api.models.certificate import (
     CertificateCreate, CertificateResponse, CertificateVerificationResponse,
-    BrokerCertificateResponse, BrokerCertificateVerificationResponse, BrokerCertificateDeleteResponse
+    BrokerCertificateResponse, BrokerCertificateVerificationResponse, BrokerCertificateDeleteResponse, BrokerCertificateRequest
 )
 from mosquitto_auth.api.core.config import settings
 from mosquitto_auth.api.models.status import CertificateStatus
@@ -157,9 +157,9 @@ async def delete_client_certificate(username: str):
     status_code=status.HTTP_201_CREATED,
     summary="Gerar certificado do broker"
 )
-async def create_broker_certificate(cn: str = settings.BROKER_CN, days: int = 365):
+async def create_broker_certificate(data: BrokerCertificateRequest):
     try:
-        await asyncio.to_thread(generate_broker_certificate, cn, days, False)
+        await asyncio.to_thread(generate_broker_certificate, settings.BROKER_CN, data.days, False)
         return BrokerCertificateResponse(
             username="broker",
             status=CertificateStatus.CREATED,
