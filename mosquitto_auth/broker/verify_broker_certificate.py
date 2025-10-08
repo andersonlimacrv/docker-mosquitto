@@ -10,7 +10,7 @@ def run_cmd_capture(cmd: list[str]) -> str:
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
         return result.stdout
     except subprocess.CalledProcessError as e:
-        return f"❌ Error executing: {' '.join(cmd)}\n{e.output or str(e)}"
+        return f"[ERROR]: {' '.join(cmd)}\n{e.output or str(e)}"
 
 
 def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None) -> dict:

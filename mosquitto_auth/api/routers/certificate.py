@@ -18,7 +18,7 @@ from mosquitto_auth.client.certificate.verify_client_certificate import verify_c
 from mosquitto_auth.broker.generate_broker_certificate import generate_broker_certificate
 from mosquitto_auth.broker.delete_broker_certificate import delete_broker_certificate as delete_broker_cert_func
 from mosquitto_auth.broker.verify_broker_certificate import verify_broker_certificate 
-
+from mosquitto_auth.lib.utils import interpret_openssl_error, error_openssl_map
 router = APIRouter()
 
 @router.post(
@@ -107,26 +107,33 @@ async def get_client_certificate_bundle(username: str):
 )
 async def get_client_certificate_verification(username: str):
     result = await asyncio.to_thread(verify_certificate_client, username)
-    if result.startswith("❌"):
-        raise HTTPException(status_code=404, detail=result)
 
     validity = None
     expiration = None
-    signature_status = None
+    signature_status = "UNKNOWN"
+    error_description = None
+
     for line in result.splitlines():
-        if line.strip().startswith("notBefore="):
-            validity = line.strip().replace("notBefore=", "")
-        elif line.strip().startswith("notAfter="):
-            expiration = line.strip().replace("notAfter=", "")
+        line = line.strip()
+
+        if line.startswith("notBefore="):
+            validity = line.replace("notBefore=", "")
+        elif line.startswith("notAfter="):
+            expiration = line.replace("notAfter=", "")
         elif ": OK" in line:
             signature_status = "OK"
-        elif ": " in line and not signature_status:
-            signature_status = line.split(":", 1)[-1].strip()
+        else:
+            interpreted = interpret_openssl_error(line)
+            if interpreted:
+                tag, description = interpreted
+                signature_status = tag
+                error_description = description
 
     return CertificateVerificationResponse(
         valid_from=validity,
         valid_until=expiration,
-        signature_status=signature_status
+        signature_status=signature_status,
+        error_description=error_description
     )
 
 

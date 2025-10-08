@@ -19,6 +19,7 @@ class CertificateVerificationResponse(BaseModel):
     valid_from: Optional[str] = None
     valid_until: Optional[str] = None
     signature_status: Optional[str] = None
+    error_description: str | None = None
 
 class BrokerCertificateRequest(BaseModel):
     cn: Optional[str] = None
