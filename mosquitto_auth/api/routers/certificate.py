@@ -110,7 +110,7 @@ async def get_client_certificate_verification(username: str):
 
     validity = None
     expiration = None
-    signature_status = "UNKNOWN"
+    signature_status = "[NOT AVAILABLE]"
     error_description = None
 
     for line in result.splitlines():
@@ -127,13 +127,13 @@ async def get_client_certificate_verification(username: str):
             if interpreted:
                 tag, description = interpreted
                 signature_status = tag
-                error_description = description
+                error_description = description 
 
     return CertificateVerificationResponse(
         valid_from=validity,
         valid_until=expiration,
-        signature_status=signature_status,
-        error_description=error_description
+        signature_status=signature_status, 
+        error_description=error_description 
     )
 
 
