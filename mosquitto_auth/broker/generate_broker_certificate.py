@@ -14,20 +14,20 @@ def secure_permissions(*files: Path):
         file.chmod(0o644)
 
 def setup_ca_database(ca_dir: Path):
-    """Cria estrutura mínima para openssl ca"""
+    """Create minimal structure for openssl ca"""
     (ca_dir / "index.txt").touch()
     (ca_dir / "serial").write_text("01")
     (ca_dir / "crlnumber").write_text("01")
 
 def cleanup_temp_files(*files: Path):
-    """Remove arquivos temporários que não são mais necessários"""
+    """Remove temporary files that are no longer needed"""
     for file in files:
         try:
             if file.exists():
                 file.unlink()
-                print(f"🧹 Removido arquivo temporário: {file}")
+                print(f"🧹 Removed temporary file: {file}")
         except Exception as e:
-            print(f"⚠️ Não foi possível remover {file}: {str(e)}")
+            print(f"⚠️ Could not remove {file}: {str(e)}")
 
 def generate_broker_certificate(cn: str = None, days: int = 365, keep_temp: bool = False, 
                                ca_key_path: str = None, ca_cert_path: str = None,
@@ -35,7 +35,7 @@ def generate_broker_certificate(cn: str = None, days: int = 365, keep_temp: bool
     if not cn:
         cn = settings.BROKER_CN
     if not cn:
-        raise ValueError("Common Name (CN) não especificado e BROKER_CN não configurado")
+        raise ValueError("Common Name (CN) not specified and BROKER_CN not configured")
     
     if not ca_key_path:
         ca_key_path = settings.ca_key_path
@@ -148,11 +148,11 @@ subjectAltName = @alt_names
         cleanup_temp_files(*temp_files)
     
     print(f"""
-✅ Certificado gerado com sucesso!
-Arquivos:
-- Chave privada: {broker_key}
-- Certificado: {broker_crt}
-SANs incluídos:
+✅ Certificate successfully generated!
+Files:
+- Private key: {broker_key}
+- Certificate: {broker_crt}
+Included SANs:
 - CN: {cn}
 - IP: 127.0.0.1
 - DNS: localhost
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     try:
         main()
     except subprocess.CalledProcessError as e:
-        print(f"❌ Erro no OpenSSL: Verifique os arquivos de configuração")
-        print(f"Detalhes: {e.stderr}")
+        print("❌ OpenSSL error: Check configuration files")
+        print(f"Details: {e.stderr}")
     except Exception as e:
-        print(f"❌ Erro crítico: {str(e)}")
+        print(f"❌ Critical error: {str(e)}")

@@ -14,7 +14,7 @@ def run_cmd_capture(cmd: list[str]) -> str:
 
 
 def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None) -> dict:
-    """Executa verificações completas no certificado e retorna um dicionário com os resultados"""
+    """Run full certificate verification and return a dictionary with the results"""
     
     if not cert_path:
         cert_path = settings.broker_cert_path
@@ -22,7 +22,7 @@ def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None)
         ca_cert_path = settings.ca_cert_path
 
     if not cert_path.exists():
-        return {"status": "ERROR", "message": f"❌ Certificado não encontrado: {cert_path}"}
+        return {"status": "ERROR", "message": f"❌ Certificate not found: {cert_path}"}
 
     result_data = {
         "cert_path": str(cert_path),
@@ -40,14 +40,14 @@ def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None)
     if "notAfter=" in result:
         end_date_str = result.strip().split("=")[1]
         result_data["valid_until"] = end_date_str
-        result_data["messages"].append(f"📅 Validade do certificado: {end_date_str}")
+        result_data["messages"].append(f"📅 Certificate validity: {end_date_str}")
 
     result = run_cmd_capture(["openssl", "verify", "-CAfile", str(ca_cert_path), str(cert_path)])
     if "OK" in result:
         result_data["ca_verified"] = True
-        result_data["messages"].append("✅ Certificado assinado pela CA confirmado")
+        result_data["messages"].append("✅ Certificate signed by CA confirmed")
     else:
-        result_data["messages"].append(f"❌ Falha na verificação da CA:\n{result}")
+        result_data["messages"].append(f"❌ CA verification failed:\n{result}")
 
     result = run_cmd_capture(["openssl", "x509", "-in", str(cert_path), "-text", "-noout"])
 
@@ -55,21 +55,21 @@ def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None)
         san_section = result.split("Subject Alternative Name:")[1].split("X509v3")[0]
         san_lines = [line.strip() for line in san_section.splitlines() if line.strip()]
         result_data["san_list"] = san_lines
-        result_data["messages"].append("✅ Subject Alternative Names (SANs) presentes")
+        result_data["messages"].append("✅ Subject Alternative Names (SANs) present")
     else:
-        result_data["messages"].append("❌ SANs não encontrados")
+        result_data["messages"].append("❌ SANs not found")
 
     if "Digital Signature" in result and "Key Encipherment" in result:
         result_data["key_usage_valid"] = True
-        result_data["messages"].append("✅ Key Usage correto (digitalSignature, keyEncipherment)")
+        result_data["messages"].append("✅ Correct Key Usage (digitalSignature, keyEncipherment)")
     else:
-        result_data["messages"].append("❌ Key Usage incorreto")
+        result_data["messages"].append("❌ Incorrect Key Usage")
 
     if "TLS Web Server Authentication" in result:
         result_data["extended_key_usage_valid"] = True
-        result_data["messages"].append("✅ Extended Key Usage correto (serverAuth)")
+        result_data["messages"].append("✅ Correct Extended Key Usage (serverAuth)")
     else:
-        result_data["messages"].append("❌ Extended Key Usage incorreto")
+        result_data["messages"].append("❌ Incorrect Extended Key Usage")
 
     if (
         result_data["valid_until"]
@@ -79,7 +79,7 @@ def verify_broker_certificate(cert_path: Path = None, ca_cert_path: Path = None)
         and result_data["san_list"]
     ):
         result_data["status"] = "OK"
-        result_data["messages"].append("✅ Todas as verificações passaram com sucesso!")
+        result_data["messages"].append("✅ All verifications passed successfully!")
 
     return result_data
 
@@ -95,8 +95,9 @@ def main():
         from pprint import pprint
         pprint(result)
     except Exception as e:
-        print(f"❌ Erro na verificação: {str(e)}")
+        print(f"❌ Verification error: {str(e)}")
 
 
 if __name__ == "__main__":
     main()
+    

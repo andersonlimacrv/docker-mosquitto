@@ -11,7 +11,7 @@ def extract_match(pattern: str, text: str) -> str | None:
 
 def verify_certificate(cert_path: Path = settings.ca_cert_path) -> dict:
     if not cert_path.exists():
-        return {"status": "ERROR", "message": f"❌ Certificado nao encontrado: {cert_path}"}
+        return {"status": "ERROR", "message": f"❌ Certificate not found: {cert_path}"}
     try:
         cmd = subprocess.run(
             ["openssl", "x509", "-in", str(cert_path), "-noout", "-text"],
@@ -26,11 +26,11 @@ def verify_certificate(cert_path: Path = settings.ca_cert_path) -> dict:
         not_before = extract_match(r"Not Before:\s+(.+)", output)
         not_after = extract_match(r"Not After\s*:\s+(.+)", output)
 
-        print("✅ Certificado verificado com sucesso!")
+        print("✅ Certificate successfully verified!")
         print(f"  - Issuer: {issuer if issuer else 'N/A'}")
         print(f"  - Subject: {subject if subject else 'N/A'}")
-        print(f"  - Valid Before: {not_before if not_before else 'N/A'}")
-        print(f"  - Valid until: {not_after if not_after else 'N/A'}")
+        print(f"  - Valid From: {not_before if not_before else 'N/A'}")
+        print(f"  - Valid Until: {not_after if not_after else 'N/A'}")
 
         return {
             "issuer": issuer,
@@ -41,12 +41,12 @@ def verify_certificate(cert_path: Path = settings.ca_cert_path) -> dict:
         }
 
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Erro ao verificar o certificado: {e.stderr}")
+        raise RuntimeError(f"Error verifying certificate: {e.stderr}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Verifica o certificado da Autoridade Certificadora (CA).")
-    parser.add_argument("--cert", type=Path, help="Caminho para o certificado da CA", default=settings.ca_cert_path)
+    parser = argparse.ArgumentParser(description="Verify the Certificate Authority (CA) certificate.")
+    parser.add_argument("--cert", type=Path, help="Path to the CA certificate", default=settings.ca_cert_path)
     args = parser.parse_args()
 
     verify_certificate(args.cert)
@@ -54,3 +54,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    

@@ -5,12 +5,12 @@ from mosquitto_auth.api.core.config import settings
 from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
 
 def main():
-    parser = argparse.ArgumentParser(description="Altera a senha de um usuário Mosquitto")
+    parser = argparse.ArgumentParser(description="Change a Mosquitto user's password")
     parser.add_argument("-f", "--file", type=Path, default=settings.PASSWD_FILE_PATH)
-    parser.add_argument("-u", "--username", required=True, help="Nome do usuário")
-    parser.add_argument("-p", "--password", required=True, help="Nova senha")
+    parser.add_argument("-u", "--username", required=True, help="Username")
+    parser.add_argument("-p", "--password", required=True, help="New password")
     parser.add_argument("--hash-alg", default="sha512-pbkdf2", choices=MosquittoUserManager.HASH_ALGORITHMS)
-    parser.add_argument("--no-reload", action="store_true", help="Não recarregar o Mosquitto após alteração")
+    parser.add_argument("--no-reload", action="store_true", help="Do not reload Mosquitto after changes")
     
     args = parser.parse_args()
     manager = MosquittoUserManager(args.file, args.hash_alg)
@@ -19,7 +19,7 @@ def main():
         if not manager.edit_password(args.username, args.password):
             sys.exit(1)
             
-        print(f"✅ Senha do usuário {args.username} alterada com sucesso")
+        print(f"✅ Password for user {args.username} changed successfully")
             
     except Exception as e:
         print(f"❌ {e}", file=sys.stderr)

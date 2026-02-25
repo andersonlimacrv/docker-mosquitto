@@ -30,8 +30,8 @@ async def create_certificate(data: CertificateCreate) -> CertificateResponse:
     try:
         if not CA_CERT.exists() or not CA_KEY.exists():
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Certificado ou chave da CA não encontrados."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="A certificate or key not found."
             )
         await asyncio.to_thread(
             generate_client_certificate, data.username, data.days if data.days is not None else 365, False
@@ -41,8 +41,8 @@ async def create_certificate(data: CertificateCreate) -> CertificateResponse:
         key_path = cert_dir / f"{data.username}.key"
         if not crt_path.exists():
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Certificado não foi gerado para '{data.username}'."
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User '{data.username}' not found."
             )
         message = CertificateMessages.CERTIFICATE_CREATED.format(username=data.username)
         return CertificateResponse(
@@ -61,7 +61,7 @@ async def create_certificate(data: CertificateCreate) -> CertificateResponse:
 @router.get(
     "/client",
     status_code=status.HTTP_200_OK,
-    summary="Listar todos os certificados de usuário"
+    summary="List all user certificates"
 )
 async def list_client_certificates():
     if not CERTS_BASE_DIR.exists() or not CERTS_BASE_DIR.is_dir():
@@ -74,7 +74,7 @@ async def list_client_certificates():
     "/client/{username}",
     response_class=FileResponse,
     status_code=status.HTTP_200_OK,
-    summary="Baixar certificado e chave do usuário (.zip)"
+    summary="Download certificate and key of user (.zip)"
 )
 async def get_client_certificate_bundle(username: str):
     cert_dir = CERTS_BASE_DIR / username
@@ -83,7 +83,7 @@ async def get_client_certificate_bundle(username: str):
     if not cert_path.exists() or not key_path.exists():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Certificado ou chave para '{username}' não encontrado(s)."
+            detail=f"Certificate or key for user '{username}' not found."
         )
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, "w") as zipf:
@@ -102,7 +102,7 @@ async def get_client_certificate_bundle(username: str):
 @router.get(
     "/client/{username}/verify",
     status_code=status.HTTP_200_OK,
-    summary="Verificar informações do certificado do usuário",
+    summary="Verify certificate information for a user",
     response_model=CertificateVerificationResponse
 )
 async def get_client_certificate_verification(username: str):
@@ -140,21 +140,21 @@ async def get_client_certificate_verification(username: str):
 @router.delete(
     "/client/{username}",
     status_code=status.HTTP_200_OK,
-    summary="Remover certificado e chave do usuário"
+    summary="Remove certificate and key of user"
 )
 async def delete_client_certificate(username: str):
     try:
         delete_user_certificate(username)
-        return {"message": f"Certificado e chave de '{username}' removidos com sucesso."}
+        return {"message": f"Certificate and key for user '{username}' removed successfully."}
     except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Diretório de certificado para '{username}' não encontrado."
+            detail=f"Certificate directory for user '{username}' not found."
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erro ao remover certificado: {e}"
+            detail=f"Error removing certificate: {e}"
         )
 
 
@@ -162,7 +162,7 @@ async def delete_client_certificate(username: str):
     "/broker",
     response_model=BrokerCertificateResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Gerar certificado do broker"
+    summary="Generate broker certificate"
 )
 async def create_broker_certificate(data: BrokerCertificateRequest):
     try:
@@ -170,16 +170,16 @@ async def create_broker_certificate(data: BrokerCertificateRequest):
         return BrokerCertificateResponse(
             username="broker",
             status=CertificateStatus.CREATED,
-            message="Certificado do broker gerado com sucesso."
+            message="Broker certificate generated successfully."
         )
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao gerar certificado do broker: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error generating broker certificate: {e}")
 
 @router.get(
     "/broker/verify",
     response_model=BrokerCertificateVerificationResponse,
     status_code=status.HTTP_200_OK,
-    summary="Verificar certificado do broker"
+    summary="Verify broker certificate information"
 )
 async def get_verify_broker_certificate():
     try:
@@ -188,7 +188,7 @@ async def get_verify_broker_certificate():
         if result.get("status") == "ERROR":
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=result.get("message", "Certificado não encontrado.")
+                detail=result.get("message", "Certificate not found.")
             )
 
         valid_until = result.get("valid_until")
@@ -222,21 +222,21 @@ async def get_verify_broker_certificate():
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Erro ao verificar certificado do broker: {e}"
+            detail=f"Error verifying broker certificate: {e}"
         )
 
 @router.delete(
     "/broker",
     response_model=BrokerCertificateDeleteResponse,
     status_code=status.HTTP_200_OK,
-    summary="Remover certificado do broker"
+    summary="Remove broker certificate"
 )
 async def delete_broker_certificate():
     try:
         await asyncio.to_thread(delete_broker_cert_func)
-        return BrokerCertificateDeleteResponse(message="Certificado e chave do broker removidos com sucesso.")
+        return BrokerCertificateDeleteResponse(message="Broker certificate and key removed successfully.")
     except FileNotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certificado do broker não encontrado.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Broker certificate not found.")
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Erro ao remover certificado do broker: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error removing broker certificate: {e}")
 

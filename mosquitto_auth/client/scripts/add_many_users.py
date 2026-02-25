@@ -8,12 +8,12 @@ def parse_users(input_str: str) -> list[tuple[str, str]]:
     return [tuple(pair.split(':', 1)) for pair in input_str.split(',')]
 
 def main():
-    parser = argparse.ArgumentParser(description="Adiciona múltiplos usuários ao arquivo Mosquitto")
+    parser = argparse.ArgumentParser(description="Add multiple users to the Mosquitto password file")
     parser.add_argument("-f", "--file", type=Path, default=settings.PASSWD_FILE_PATH)
-    parser.add_argument("-u", "--users", required=True, help="Lista no formato user1:pass1,user2:pass2")
-    parser.add_argument("-c", "--overwrite", action="store_true", help="Criar novo arquivo (sobrescreve existente)")
+    parser.add_argument("-u", "--users", required=True, help="List in the format user1:pass1,user2:pass2")
+    parser.add_argument("-c", "--overwrite", action="store_true", help="Create new file (overwrite existing)")
     parser.add_argument("--hash-alg", default="sha512-pbkdf2", choices=MosquittoUserManager.HASH_ALGORITHMS)
-    parser.add_argument("--no-reload", action="store_true", help="Não recarregar o Mosquitto após alteração")
+    parser.add_argument("--no-reload", action="store_true", help="Do not reload Mosquitto after changes")
     
     args = parser.parse_args()
     manager = MosquittoUserManager(args.file, args.hash_alg)

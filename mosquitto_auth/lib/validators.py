@@ -21,7 +21,7 @@ PasswordStr = Annotated[
 ]
 
 def validate_single_user(username: str, password: str) -> tuple[str, str]:
-    """Valida um par username/password individualmente"""
+    """Validate a single username/password pair"""
     class TempUser(BaseModel):
         username: UsernameStr
         password: PasswordStr
@@ -33,7 +33,7 @@ def validate_single_user(username: str, password: str) -> tuple[str, str]:
         raise ValueError(f"Invalid user credentials: {e.errors()}")
 
 def validate_users_dict(users_dict: dict[str, str]) -> dict[str, str]:
-    """Valida um dicionário completo de usuários"""
+    """Validate a complete users dictionary"""
     validated_users = {}
     for username, password in users_dict.items():
         valid_user, valid_pass = validate_single_user(username, password)

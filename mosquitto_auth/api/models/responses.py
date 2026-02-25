@@ -11,5 +11,5 @@ class UserMessages(str, Enum):
     USER_INVALID = "User '{username}' is invalid."
 
 class CertificateMessages(str, Enum):
-    CERTIFICATE_CREATED = "Certificado para '{username}' criado com sucesso."
-    CERTIFICATE_ERROR = "Erro ao criar certificado para '{username}'."
+    CERTIFICATE_CREATED = "Certificate for user '{username}' created successfully."
+    CERTIFICATE_ERROR = "Error creating certificate for '{username}'."

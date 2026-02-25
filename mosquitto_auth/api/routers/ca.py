@@ -11,7 +11,7 @@ router = APIRouter()
   "",
   response_model=CACreateResponse,
   status_code=status.HTTP_201_CREATED,
-  summary="Gerar certificado da Autoridade Certificadora (CA)"
+  summary="Generate Certificate Authority (CA) certificate"
 )
 async def create_ca(data: CreateCA):
   try:
@@ -25,13 +25,13 @@ async def create_ca(data: CreateCA):
   except Exception as e:
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-      detail=f"Erro ao gerar certificado da CA: {e}"
+      detail=f"Error generating CA certificate: {e}"
     )
   
 @router.get(
   "/verify",
   status_code=status.HTTP_200_OK,
-  summary="Verificar certificado da Autoridade Certificadora (CA)"
+  summary="Verify Certificate Authority (CA) certificate"
 )
 async def verify_ca():
   try:
@@ -40,33 +40,33 @@ async def verify_ca():
   except FileNotFoundError:
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND,
-      detail="Certificado da CA nao encontrado."
+      detail="A certificate not found."
     )
   except Exception as e:
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-      detail=f"Erro ao verificar certificado da CA: {e}"
+      detail=f"Error verifying CA certificate: {e}"
     )
   
 
 @router.delete(
   "",
   status_code=status.HTTP_200_OK,
-  summary="Remover certificado da Autoridade Certificadora (CA)"
+  summary="Remove Certificate Authority (CA) certificate"
 )
 async def delete_ca():
   try:
     await asyncio.to_thread(delete_ca_files)
-    return {"message": "Certificado da CA removido com sucesso."}
+    return {"message": "Certificate Authority (CA) certificate removed successfully."}
   except FileNotFoundError:
     raise HTTPException(
       status_code=status.HTTP_404_NOT_FOUND,
-      detail="Certificado da CA nao encontrado."
+      detail="Certificate Authority (CA) certificate not found."
     )
   except Exception as e:
     raise HTTPException(
       status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-      detail=f"Erro ao remover certificado da CA: {e}"
+      detail=f"Error removing CA certificate: {e}"
 )
 
   

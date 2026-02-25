@@ -5,10 +5,10 @@ from mosquitto_auth.api.core.config import settings
 from mosquitto_auth.client.MosquittoUserManager import MosquittoUserManager
 
 def main():
-    parser = argparse.ArgumentParser(description="Remove um usuário do arquivo de senhas Mosquitto")
+    parser = argparse.ArgumentParser(description="Remove a user from the Mosquitto password file")
     parser.add_argument("-f", "--file", type=Path, default=settings.PASSWD_FILE_PATH)
-    parser.add_argument("-u", "--username", required=True, help="Nome do usuário a remover")
-    parser.add_argument("--no-reload", action="store_true", help="Não recarregar o Mosquitto após alteração")
+    parser.add_argument("-u", "--username", required=True, help="Username to remove")
+    parser.add_argument("--no-reload", action="store_true", help="Do not reload Mosquitto after changes")
     
     args = parser.parse_args()
     manager = MosquittoUserManager(args.file)
@@ -17,7 +17,7 @@ def main():
         if not manager.delete_user(args.username):
             sys.exit(1)
             
-        print(f"✅ Usuário {args.username} removido com sucesso")
+        print(f"✅ User {args.username} removed successfully")
             
     except Exception as e:
         print(f"❌ {e}", file=sys.stderr)

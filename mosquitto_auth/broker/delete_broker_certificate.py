@@ -15,4 +15,4 @@ def delete_broker_certificate():
             f.unlink()
             removed = True
     if not removed:
-        raise FileNotFoundError("Certificado do broker não encontrado.") 
+        raise FileNotFoundError("Broker certificate not found.") 
