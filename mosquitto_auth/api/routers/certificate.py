@@ -36,14 +36,6 @@ async def create_certificate(data: CertificateCreate) -> CertificateResponse:
         await asyncio.to_thread(
             generate_client_certificate, data.username, data.days if data.days is not None else 365, False
         )
-        cert_dir = CERTS_BASE_DIR / data.username
-        crt_path = cert_dir / f"{data.username}.crt"
-        key_path = cert_dir / f"{data.username}.key"
-        if not crt_path.exists():
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"User '{data.username}' not found."
-            )
         message = CertificateMessages.CERTIFICATE_CREATED.format(username=data.username)
         return CertificateResponse(
             username=data.username,
