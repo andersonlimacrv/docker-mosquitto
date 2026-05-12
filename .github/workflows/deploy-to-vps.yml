@@ -7,25 +7,32 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to VPS
+    name: Deploy Application
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
+      - name: 🔑 Setup SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/github-actions-vps
-          chmod 600 ~/.ssh/github-actions-vps
-          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/${{ secrets.SSH_PRIVATE_KEY_NAME }}
+          chmod 600 ~/.ssh/${{ secrets.SSH_PRIVATE_KEY_NAME }}
+          ssh-keyscan -p ${{ secrets.VPS_SSH_PORT }} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy via SSH
+      - name: 🚀 Execute Deploy - via SSH
         run: |
-          ssh -i ~/.ssh/github-actions-vps ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-            cd /home/deploy/apps/broker-mosquitto
-            GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ secrets.PUB_GITHUB_KEY }} -o StrictHostKeyChecking=no" git pull origin main
+          ssh -p ${{ secrets.VPS_SSH_PORT }} -i ~/.ssh/${{ secrets.SSH_PRIVATE_KEY_NAME }} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+            set -e
+            cd ${{ secrets.REPO_VPS }}
+
+            export DOCKER_BUILDKIT=1
+            export COMPOSE_DOCKER_CLI_BUILD=1
+
+            git config --global --add safe.directory ${{ secrets.REPO_VPS }}
+
+            GIT_SSH_COMMAND="ssh -i ~/.ssh/${{ secrets.PUB_GITHUB_KEY_NAME }} -o StrictHostKeyChecking=no" git pull origin main
             make deploy
 
           EOF
