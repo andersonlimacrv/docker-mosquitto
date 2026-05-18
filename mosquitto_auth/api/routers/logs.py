@@ -6,6 +6,7 @@ from collections import deque
 
 from fastapi import APIRouter, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from mosquitto_auth.api.core.config import settings
+from mosquitto_auth.api.models.logs import LogsResponse
 
 router = APIRouter()
 
@@ -19,7 +20,12 @@ def validate_api_key(api_key: str | None) -> bool:
     return bool(api_key) and api_key == settings.API_KEY
 
 
-@router.get("/")
+@router.get(
+    "/",
+    response_model=LogsResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get last N lines of log",
+)
 def get_logs(
     limit: int = Query(
         default=10,
@@ -30,10 +36,10 @@ def get_logs(
 ):
     try:
         logs = read_last_lines(settings.LOG_FILE_PATH, limit)
-        return {
-            "limit": limit,
-            "logs": logs,
-        }
+        return LogsResponse(
+            limit=limit,
+            logs=logs,
+        )
 
     except FileNotFoundError:
         raise HTTPException(
