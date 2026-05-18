@@ -2,10 +2,35 @@
 
 PASSWD_FILE="/mosquitto/config/mosquitto.passwd"
 CERTS_DIR="/mosquitto/certs"
+LOG_DIR="/mosquitto/log"
+LOG_FILE="${LOG_DIR}/mosquitto.log"
 
 echo "👁️  Aguardando modificações em:"
 echo "  🔐 Arquivo: $PASSWD_FILE"
 echo "  📁 Diretório: $CERTS_DIR"
+
+if [ -d "$LOG_DIR" ]; then
+  echo "✅ Diretório de log já existe: $LOG_DIR"
+else
+  echo "📁 Criando diretório de log: $LOG_DIR"
+  mkdir -p "$LOG_DIR"
+  if [ $? -eq 0 ]; then
+    echo "✅ Diretório de log criado com sucesso: $LOG_DIR"
+  else
+    echo "❌ Falha ao criar diretório de log: $LOG_DIR"
+    exit 1
+  fi
+fi
+
+echo "🔧 Ajustando permissões do arquivo de log..."
+chmod 666 "$LOG_FILE"
+if [ $? -eq 0 ]; then
+  echo "✅ Permissões ajustadas para 666: $LOG_FILE"
+else
+  echo "⚠️  Falha ao ajustar permissões do arquivo: $LOG_FILE"
+fi
+
+echo "📝 Log configurado em: $LOG_FILE"
 
 if [ ! -f "$PASSWD_FILE" ]; then
   echo "❌ Arquivo não encontrado: $PASSWD_FILE"

@@ -1,32 +1,34 @@
+DOCKER_COMPOSE=docker compose
+
 build-nc:
-	docker-compose build --no-cache
+	$(DOCKER_COMPOSE) build --no-cache
 
 build:
-	docker-compose build
+	$(DOCKER_COMPOSE) build
 
 up:
-	docker-compose up -d
+	$(DOCKER_COMPOSE) up -d
 
 deploy:
-	docker-compose down && docker-compose up -d --build
+	$(DOCKER_COMPOSE) down && $(DOCKER_COMPOSE) up -d --build
 
 down:
-	docker-compose down
+	$(DOCKER_COMPOSE) down
 
-restart:
-	docker-compose restart mosquitto
+remake start:
+	$(DOCKER_COMPOSE) restart mosquitto
 
 run-api-dev:
 	poetry run uvicorn mosquitto_auth.api.main:app --reload --port 8000
 
 logs: 
-	docker-compose logs -f
+	$(DOCKER_COMPOSE) logs -f
 
 api-logs: 
-	docker-compose logs -f api
+	$(DOCKER_COMPOSE) logs -f api
 
 mosquitto-logs: 
-	docker-compose logs -f mosquitto 
+	$(DOCKER_COMPOSE) logs -f mosquitto 
 
 reborn:
-	docker-compose down && docker-compose build --no-cache && docker-compose up -d
+	$(DOCKER_COMPOSE) down && $(DOCKER_COMPOSE) build --no-cache && $(DOCKER_COMPOSE) up -d

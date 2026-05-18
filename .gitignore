@@ -1,5 +1,5 @@
 .env
-/certs/
+/certs/*
 /config/mosquitto.passwd
 
 # Python
@@ -7,7 +7,7 @@ __pycache__/
 *.pyc
 
 # Logs
-/log/
+/log/*
 
 # Poetry
 #poetry.lock 
