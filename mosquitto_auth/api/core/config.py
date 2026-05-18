@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     BROKER_CN: str
     BROKER_PORT: int = 8883
     PASSWD_FILE_PATH: Path = Path("./config/mosquitto.passwd")
+    LOG_FILE_PATH: Path = Path("./log/mosquitto.log")
     
     # 🔐 CERTS
     certs_dir: Path = "certs"
