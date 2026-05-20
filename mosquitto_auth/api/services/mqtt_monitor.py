@@ -1,4 +1,5 @@
 import asyncio
+import os
 import ssl
 from pathlib import Path
 from datetime import datetime
@@ -71,7 +72,7 @@ async def start_mqtt_monitor():
                 tls_context=tls_context,
                 timeout=10.0,
                 keepalive=60,
-                identifier=f"brk_{settings.USER_MQTT_MONITOR}"
+                identifier=f"brk_{settings.USER_MQTT_MONITOR}_{os.getpid()}"
             ) as client:
                 
                 print(f"[Monitor] Conectado ao Broker MQTT com sucesso.")

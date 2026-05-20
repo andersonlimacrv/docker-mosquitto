@@ -34,7 +34,7 @@ async def verify_websocket_auth(websocket: WebSocket) -> None:
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION, reason="Invalid API Key")
         raise
 
-    await websocket.send_json({"type": "auth", "ok": True})
+    await websocket.send_text("_")
     websocket.state.api_key = payload.api_key
 
 AuthWsDep = Depends(verify_websocket_auth)
