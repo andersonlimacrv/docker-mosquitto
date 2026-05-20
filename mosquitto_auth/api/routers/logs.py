@@ -15,7 +15,7 @@ def read_last_lines(path: str, limit: int) -> list[str]:
     with open(path, "r", encoding="utf-8", errors="replace") as f:
         return list(deque(f, maxlen=limit))
 
-@router.get("/", response_model=LogsResponse, status_code=status.HTTP_200_OK)
+@router.get("", response_model=LogsResponse, status_code=status.HTTP_200_OK)
 def get_logs(limit: int = Query(default=10, ge=1, le=1000)):
     try:
         logs = read_last_lines(settings.LOG_FILE_PATH, limit)
