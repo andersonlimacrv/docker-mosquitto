@@ -15,6 +15,11 @@ class Settings(BaseSettings):
     PASSWD_FILE_PATH: Path = Path("./config/mosquitto.passwd")
     LOG_FILE_PATH: Path = Path("./log/mosquitto.log")
     
+    # Configurações do Monitoramento MQTT
+    USER_MQTT_MONITOR: str = "$SYS-monitor"
+    PASSWD_MQTT_MONITOR: str = "$SYS-pswd"
+    SYS_INTERVAL_ACL: int = 10
+    
     # 🔐 CERTS
     certs_dir: Path = "certs"
     ca_cert_path: Path = "certs/ca.crt"
