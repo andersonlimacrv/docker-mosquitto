@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from mosquitto_auth.api.core.cors import setup_cors
 from mosquitto_auth.api.core.routes import register_routes
 from .core.config import settings
+from mosquitto_auth.api.core.lifespan import lifespan
 
 from mosquitto_auth.ca.generate_ca import create_initial_cert_paths
 
@@ -17,7 +18,8 @@ app = FastAPI(
     title="Mosquitto Auth API",
     description="API for managing Mosquitto authentication users",
     version="1.0.0",
-    default_response_class=JSONResponse
+    default_response_class=JSONResponse,
+    lifespan=lifespan
 )
 
 setup_cors(app)
@@ -38,7 +40,8 @@ def start():
         port=settings.API_PORT,
         reload=False,
         log_level=settings.log_level.lower(),
-        workers=2
+        workers=2,
+        loop="asyncio"
     )
 
 if __name__ == "__main__":
