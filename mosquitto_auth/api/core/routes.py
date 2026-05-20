@@ -10,5 +10,5 @@ def register_routes(app):
   app.include_router(logs.ws_router, prefix="/logs", dependencies=[AuthWsDep], tags=["Logs WebSocket"])
   app.include_router(health.router, prefix="/health", tags=["System Health 🩺"])
   app.include_router(config.router, prefix="/config", dependencies=[ApiKeyDep], tags=["Configurações ⚙️"])
-  app.include_router(monitor.router, prefix="/broker", dependencies=[ApiKeyDep], tags=["Broker Monitor 📊"])
-  app.include_router(monitor.ws_router, prefix="/broker", dependencies=[AuthWsDep], tags=["Broker Monitor WS"])
+  app.include_router(monitor.router, prefix="/monitor", dependencies=[ApiKeyDep], tags=["Broker Metrics 📊"])
+  app.include_router(monitor.ws_router, prefix="/monitor", dependencies=[AuthWsDep], tags=["Broker Metrics WS"])
