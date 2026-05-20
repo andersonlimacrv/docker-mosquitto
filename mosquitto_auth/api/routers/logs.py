@@ -32,7 +32,7 @@ def download_logs():
         raise HTTPException(status_code=404, detail="Broker log file not found.")
     return FileResponse(path=log_path, filename="mosquitto.log", media_type="text/plain")
 
-@ws_router.websocket("/ws")
+@ws_router.websocket("/stream")
 async def logs_ws(websocket: WebSocket):
     raw_limit = websocket.query_params.get("limit", "10")
     try:
