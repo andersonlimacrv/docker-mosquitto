@@ -46,5 +46,6 @@ class BrokerStateResponse(BaseModel):
     last_connected_at: datetime | None = None
     last_disconnect_at: datetime | None = None
     last_sys_update_at: datetime | None = None
+    last_ws_broadcast_at: datetime | None = None
     
     metrics: BrokerMetrics

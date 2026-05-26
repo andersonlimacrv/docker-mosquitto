@@ -29,6 +29,7 @@ async def _process_sys_message(topic: str, payload: bytes):
         
         broker_state.last_sys_update_at = datetime.utcnow()
         await metrics_dispatcher.broadcast(broker_state.to_dict())
+        broker_state.last_ws_broadcast_at = datetime.utcnow()
     except Exception as e:
         print(f"[Monitor] Erro processando métrica: {e}")
 

@@ -31,6 +31,7 @@ class BrokerStateTracker:
         self.last_connected_at: datetime | None = None
         self.last_disconnect_at: datetime | None = None
         self.last_sys_update_at: datetime | None = None
+        self.last_ws_broadcast_at: datetime | None = None
         
         self.metrics: BrokerMetrics = BrokerMetrics()
         
@@ -42,6 +43,7 @@ class BrokerStateTracker:
             "last_connected_at": self.last_connected_at.isoformat() if self.last_connected_at else None,
             "last_disconnect_at": self.last_disconnect_at.isoformat() if self.last_disconnect_at else None,
             "last_sys_update_at": self.last_sys_update_at.isoformat() if self.last_sys_update_at else None,
+            "last_ws_broadcast_at": self.last_ws_broadcast_at.isoformat() if self.last_ws_broadcast_at else None,
             "metrics": self.metrics.model_dump()
         }
 
