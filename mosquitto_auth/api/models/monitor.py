@@ -15,8 +15,10 @@ class ContainerAvailability(str, Enum):
     UNKNOWN = "unknown"
 
 class BrokerMetrics(BaseModel):
-    # Tipagem rigorosa para evitar caos no frontend
+    version_mosquitto: str = Field(default="unknown", description="Software version of Mosquitto.")
     clients_connected: int = 0
+    clients_disconnected: int = 0
+    clients_expired: int = 0
     clients_maximum: int = 0
     clients_total: int = 0
     messages_received: int = 0
@@ -26,12 +28,18 @@ class BrokerMetrics(BaseModel):
     uptime_seconds: int = 0
     active_subscriptions: int = 0
     retained_messages: int = 0
+    store_messages_bytes: int = 0
+    heap_current_bytes: int = 0
+    heap_max_bytes: int = 0
+    packets_queue_pending: int = 0
+    bytes_queue_pending: int = 0
     
     # 1min Load Metrics
     messages_received_per_min: float = 0.0
     messages_sent_per_min: float = 0.0
     publish_received_per_min: float = 0.0
     publish_sent_per_min: float = 0.0
+    publish_dropped_per_min: float = 0.0
     bytes_received_per_min: float = 0.0
     bytes_sent_per_min: float = 0.0
     sockets_connected_per_min: float = 0.0
