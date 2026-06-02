@@ -2,7 +2,7 @@ import asyncio
 import os
 import ssl
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 import aiomqtt
 
 from mosquitto_auth.api.core.config import settings
@@ -25,11 +25,12 @@ async def _process_sys_message(topic: str, payload: bytes):
                 value = cast_fn(clean_payload)
                 setattr(broker_state.metrics, field_name, value)
             except ValueError:
+                print(f"[Monitor] Fail to process[ topic: {topic}, payload: {field_name}: '{decoded_payload}'")
                 pass # Ignora payload incompatível
         
-        broker_state.last_sys_update_at = datetime.utcnow()
+        broker_state.last_sys_update_at = datetime.now(timezone.utc)
         await metrics_dispatcher.broadcast(broker_state.to_dict())
-        broker_state.last_ws_broadcast_at = datetime.utcnow()
+        broker_state.last_ws_broadcast_at = datetime.now(timezone.utc)
     except Exception as e:
         print(f"[Monitor] Erro processando métrica: {e}")
 
@@ -79,7 +80,7 @@ async def start_mqtt_monitor():
                 print(f"[Monitor] Conectado ao Broker MQTT com sucesso.")
                 broker_state.broker_status = BrokerAvailability.ONLINE
                 broker_state.last_error = None
-                broker_state.last_connected_at = datetime.utcnow()
+                broker_state.last_connected_at = datetime.now(timezone.utc)
                 delay = 1.0 # Reseta o backoff
                 
                 await client.subscribe("$SYS/#")
@@ -94,12 +95,12 @@ async def start_mqtt_monitor():
         except aiomqtt.MqttError as e:
             broker_state.broker_status = BrokerAvailability.OFFLINE
             broker_state.last_error = f"MqttError: {e}"
-            broker_state.last_disconnect_at = datetime.utcnow()
+            broker_state.last_disconnect_at = datetime.now(timezone.utc)
             print(f"[Monitor] Conexão perdida: {e}. Tentando reconectar...")
         except Exception as e:
             broker_state.broker_status = BrokerAvailability.OFFLINE
             broker_state.last_error = f"Erro Inesperado: {e}"
-            broker_state.last_disconnect_at = datetime.utcnow()
+            broker_state.last_disconnect_at = datetime.now(timezone.utc)
             print(f"[Monitor] Erro fatal no monitor loop: {e}")
 
         # Backoff Exponencial

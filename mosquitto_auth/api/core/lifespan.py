@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 
 from mosquitto_auth.api.services.mqtt_monitor import start_mqtt_monitor
 from mosquitto_auth.api.core.state import broker_state, BrokerAvailability
@@ -16,7 +16,7 @@ async def stale_detection_loop():
         try:
             if broker_state.broker_status == BrokerAvailability.ONLINE:
                 if broker_state.last_sys_update_at:
-                    delta = (datetime.utcnow() - broker_state.last_sys_update_at).total_seconds()
+                    delta = (datetime.now(timezone.utc) - broker_state.last_sys_update_at).total_seconds()
                     # Se não receber atualização em 2 * SYS_INTERVAL, considerar DEGRADED
                     if delta > (2 * settings.SYS_INTERVAL_ACL):
                         broker_state.broker_status = BrokerAvailability.DEGRADED
