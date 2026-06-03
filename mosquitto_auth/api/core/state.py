@@ -40,10 +40,10 @@ class BrokerStateTracker:
             "broker_status": self.broker_status.value,
             "container_status": self.container_status.value,
             "last_error": self.last_error,
-            "last_connected_at": self.last_connected_at.isoformat() if self.last_connected_at else None,
-            "last_disconnect_at": self.last_disconnect_at.isoformat() if self.last_disconnect_at else None,
-            "last_sys_update_at": self.last_sys_update_at.isoformat() if self.last_sys_update_at else None,
-            "last_ws_broadcast_at": self.last_ws_broadcast_at.isoformat() if self.last_ws_broadcast_at else None,
+            "last_connected_at": self.last_connected_at,
+            "last_disconnect_at": self.last_disconnect_at,
+            "last_sys_update_at": self.last_sys_update_at,
+            "last_ws_broadcast_at": self.last_ws_broadcast_at,
             "metrics": self.metrics.model_dump()
         }
 
