@@ -20,7 +20,7 @@ class Dispatcher:
             try:
                 queue.put_nowait(data)
             except asyncio.QueueFull:
-                pass # Se o cliente não estiver lendo rápido o suficiente, ignora o tick para não travar o loop
+                pass
 
 class BrokerStateTracker:
     def __init__(self):
@@ -55,7 +55,7 @@ TOPIC_MAP = {
     "$SYS/broker/clients/connected": ("clients_connected", int), #  (( CLIENTS )) - Número de clientes atualmente conectados.
     "$SYS/broker/clients/expired": ("clients_expired", int), #  (( CLIENTS )) - Clientes persistentes desconectados que foram expirados/removidos (pela opção persistent_client_expiration).
     "$SYS/broker/clients/disconnected": ("clients_disconnected", int), #  (( CLIENTS )) - Clientes persistentes (sessões duráveis) registrados, mas atualmente desconectados.
-    "$SYS/broker/clients/maximum": ("clients_maximum", int), # (( CLIENTS ))Máximo de clientes conectados simultaneamente observado.
+    "$SYS/broker/clients/maximum": ("clients_maximum", int), # (( CLIENTS )) - Máximo de clientes conectados simultaneamente observado.
     "$SYS/broker/clients/total": ("clients_total", int), #(( SESSIONS )) -  Total de sessões registradas no broker (clientes conectados + desconectados).
     "$SYS/broker/messages/received": ("messages_received", int),  # (( MESSAGES )) Total de mensagens de qualquer tipo recebidas pelo broker desde o início.
     "$SYS/broker/messages/sent": ("messages_sent", int), # (( MESSAGES )) - Total de mensagens de qualquer tipo enviadas pelo broker desde o início.
@@ -64,7 +64,7 @@ TOPIC_MAP = {
     "$SYS/broker/uptime": ("uptime_seconds", int), # (( SECONDS )) - Tempo de execução do broker em segundos.
     "$SYS/broker/subscriptions/count": ("active_subscriptions", int), # (( SUBSCRIPTIONS )) - Número total de subscrições ativas (individual e shared) no broker.
     "$SYS/broker/retained messages/count": ("retained_messages", int), # (( MESSAGES )) - Número de mensagens retidas ativas no broker.
-    "$SYS/broker/store/messages/bytes": ("store_messages_bytes", int), # (( BYTES )) - TTotal de bytes das mensagens atualmente no armazenamento.
+    "$SYS/broker/store/messages/bytes": ("store_messages_bytes", int), # (( BYTES )) - Total de bytes das mensagens atualmente no armazenamento.
   
     # Carga Média (load) do Broker -  médias móveis de várias métricas em janelas de 1, 5 e 15 minutos. A unidade indicada é por minuto. 
     "$SYS/broker/load/connections/1min": ("connections_per_min", float), # (( CONNECTIONS / MIN )) - Taxa média de pacotes CONNECT recebidos por minuto (1,5,15min).
